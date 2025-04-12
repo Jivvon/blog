@@ -74,5 +74,9 @@
       "prettier --write"
     ]
   },
-  "packageManager": "yarn@3.6.1"
+  "packageManager": "yarn@3.6.1",
+  "volta": {
+    "node": "22.14.0",
+    "yarn": "4.9.0"
+  }
 }
