@@ -87,8 +87,28 @@ export default async function Page(props: { params: Promise<{ slug: string[] }> 
     return notFound()
   }
 
-  const prev = sortedCoreContents[postIndex + 1]
-  const next = sortedCoreContents[postIndex - 1]
+  // externalUrl이 없는 다음 포스트(이후에 작성된 포스트) 찾기
+  let prevIndex = postIndex + 1
+  let prev = undefined as (typeof sortedCoreContents)[number] | undefined
+  while (prevIndex < sortedCoreContents.length) {
+    if (!sortedCoreContents[prevIndex].externalUrl) {
+      prev = sortedCoreContents[prevIndex]
+      break
+    }
+    prevIndex++
+  }
+
+  // externalUrl이 없는 이전 포스트(이전에 작성된 포스트) 찾기
+  let nextIndex = postIndex - 1
+  let next = undefined as (typeof sortedCoreContents)[number] | undefined
+  while (nextIndex >= 0) {
+    if (!sortedCoreContents[nextIndex].externalUrl) {
+      next = sortedCoreContents[nextIndex]
+      break
+    }
+    nextIndex--
+  }
+
   const post = allBlogs.find((p) => p.slug === slug) as Blog
   const authorList = post?.authors || ['default']
   const authorDetails = authorList.map((author) => {

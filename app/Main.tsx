@@ -7,6 +7,7 @@ import NewsletterForm from 'pliny/ui/NewsletterForm'
 const MAX_DISPLAY = 4
 
 export default function Home({ posts }) {
+  // console.log('Posts with externalUrl:', posts.filter(post => post.externalUrl));
   return (
     <>
       <div className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -21,7 +22,8 @@ export default function Home({ posts }) {
         <ul className="divide-y divide-gray-200 dark:divide-gray-700">
           {!posts.length && 'No posts found.'}
           {posts.slice(0, MAX_DISPLAY).map((post) => {
-            const { slug, date, title, summary, tags } = post
+            const { slug, date, title, summary, tags, externalUrl } = post
+            console.log(externalUrl)
             return (
               <li key={slug} className="py-12">
                 <article>
@@ -37,8 +39,9 @@ export default function Home({ posts }) {
                         <div>
                           <h2 className="text-2xl leading-8 font-bold tracking-tight">
                             <Link
-                              href={`/blog/${slug}`}
+                              href={externalUrl || `/blog/${slug}`}
                               className="text-gray-900 dark:text-gray-100"
+                              {...(externalUrl && { target: '_blank', rel: 'noopener noreferrer' })}
                             >
                               {title}
                             </Link>
@@ -55,9 +58,10 @@ export default function Home({ posts }) {
                       </div>
                       <div className="text-base leading-6 font-medium">
                         <Link
-                          href={`/blog/${slug}`}
+                          href={externalUrl || `/blog/${slug}`}
                           className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
                           aria-label={`Read more: "${title}"`}
+                          {...(externalUrl && { target: '_blank', rel: 'noopener noreferrer' })}
                         >
                           Read more &rarr;
                         </Link>
