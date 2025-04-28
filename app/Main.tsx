@@ -5,6 +5,7 @@ import { formatDate } from 'pliny/utils/formatDate'
 import NewsletterForm from 'pliny/ui/NewsletterForm'
 
 const MAX_DISPLAY = 4
+const SHOW_READ_MORE = false
 
 export default function Home({ posts }) {
   // console.log('Posts with externalUrl:', posts.filter(post => post.externalUrl));
@@ -23,7 +24,6 @@ export default function Home({ posts }) {
           {!posts.length && 'No posts found.'}
           {posts.slice(0, MAX_DISPLAY).map((post) => {
             const { slug, date, title, summary, tags, externalUrl } = post
-            console.log(externalUrl)
             return (
               <li key={slug} className="py-12">
                 <article>
@@ -44,6 +44,7 @@ export default function Home({ posts }) {
                               {...(externalUrl && { target: '_blank', rel: 'noopener noreferrer' })}
                             >
                               {title}
+                              {externalUrl && ' ↗'}
                             </Link>
                           </h2>
                           <div className="flex flex-wrap">
@@ -56,16 +57,17 @@ export default function Home({ posts }) {
                           {summary}
                         </div>
                       </div>
-                      <div className="text-base leading-6 font-medium">
-                        <Link
-                          href={externalUrl || `/blog/${slug}`}
-                          className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
-                          aria-label={`Read more: "${title}"`}
-                          {...(externalUrl && { target: '_blank', rel: 'noopener noreferrer' })}
-                        >
-                          Read more &rarr;
-                        </Link>
-                      </div>
+                      {SHOW_READ_MORE && !externalUrl && (
+                        <div className="text-base leading-6 font-medium">
+                          <Link
+                            href={`/blog/${slug}`}
+                            className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
+                            aria-label={`Read more: "${title}"`}
+                          >
+                            Read more &rarr;
+                          </Link>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </article>

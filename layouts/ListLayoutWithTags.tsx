@@ -126,7 +126,7 @@ export default function ListLayoutWithTags({
           <div>
             <ul>
               {displayPosts.map((post) => {
-                const { path, date, title, summary, tags } = post
+                const { path, date, title, summary, tags, externalUrl } = post
                 return (
                   <li key={path} className="py-5">
                     <article className="flex flex-col space-y-2 xl:space-y-0">
@@ -141,8 +141,13 @@ export default function ListLayoutWithTags({
                       <div className="space-y-3">
                         <div>
                           <h2 className="text-2xl leading-8 font-bold tracking-tight">
-                            <Link href={`/${path}`} className="text-gray-900 dark:text-gray-100">
+                            <Link
+                              href={externalUrl || `/${path}`}
+                              className="text-gray-900 dark:text-gray-100"
+                              {...(externalUrl && { target: '_blank', rel: 'noopener noreferrer' })}
+                            >
                               {title}
+                              {externalUrl && ' ↗'}
                             </Link>
                           </h2>
                           <div className="flex flex-wrap">
