@@ -1,0 +1,22 @@
+
+
+- ECS -> EKS 마이그레이션
+    - ECS에서는 CloudMap과 LB를 혼용해서 사용하다가, EKS로 옮길 땐 LB로 모두 옮긴 후 TargetGroup의 weight를 조절하며 마이그레이션을 수행함
+    - DynamoDB Streams로 업데이트하던 인메모리 데이터베이스를 중단 없이 마이그레이션하였습니다
+        기존의 무거웠던 AWS Lambda의 역할을 나누었음
+        특정 비즈니스 모델을 기준으로 DB를 나누었음
+        아래의 순서대로 함
+        1. Cloud Map을 사용하던걸 ALB로 옮김
+        2. EKS에 인스턴스를 준비하고 DynamoDB Streams를 ECS와 EKS 동시에 흘러들어가도록 함
+        3. url path와 Header를 활용하여 내부 특정 채널만을 대상으로 EKS로 마이그레이션된 DB에 대해 테스트함
+        4. 모니터링하며 ALB listener rule의 weight를 조절하여 1주에 걸쳐 마이그레이션을 완료함
+        DB 컨테이너당 하나의 타입만 지원하는 특성을 고려하여, topologySpreadConstraints로 서로 다른 타입의 컨테이너는 다른 인스턴스에 스케줄링되도록 하여 가용성을 확보함
+
+
+- whisper spot으로 돌린 썰
+    실시간성을 보장하지 않아도 되는 서비스 특성 상 queue에 넣고 모두 spot으로 돌림
+    크기가 큰 모델 빠르게 올리기
+        spot을 사용하기 때문에 인스턴스 kubelet의 이미지 캐싱을 활용하기에는 어려웠음
+        볼륨 스냅샷을 활용해서 인스턴스 프로비저닝시 마운트하는 방법 (disk iops or network bandwidth)
+        모델이 포함된 AMI 빌드해서 사용
+    동일한 기능을 제공하는 Saas보다 훨씬 적은 비용으로 운영 중
