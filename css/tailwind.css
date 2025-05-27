@@ -187,6 +187,12 @@ input:-webkit-autofill:focus {
 
 /* Print styles - hide header and footer when printing */
 @media print {
+  /* Page setup for PDF */
+  @page {
+    size: A4;
+    margin: 1.5cm;
+  }
+
   header {
     display: none !important;
   }
@@ -195,15 +201,63 @@ input:-webkit-autofill:focus {
     display: none !important;
   }
 
-  /* Optional: Adjust body margins for better print layout */
+  /* Hide print button */
+  .print\\:hidden {
+    display: none !important;
+  }
+
+  /* Scale content to 85% */
+  html {
+    font-size: 85% !important;
+  }
+
+  /* Adjust body margins for better print layout */
   body {
     margin: 0 !important;
     padding: 0 !important;
+    font-size: 12pt !important;
+    line-height: 1.4 !important;
   }
 
-  /* Optional: Improve print layout for main content */
+  /* Improve print layout for main content */
   main {
     margin-top: 0 !important;
     padding-top: 0 !important;
+  }
+
+  /* Resume specific adjustments */
+  .resume-content h2 {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  .resume-content h3 {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  /* Avoid page breaks inside sections */
+  .resume-content > div,
+  .resume-content > section {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Improve readability */
+  * {
+    color: black !important;
+    background: white !important;
+  }
+
+  /* Keep links styled but functional */
+  a {
+    color: #0066cc !important;
+    text-decoration: underline !important;
+  }
+
+  /* Avatar adjustments for print */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
   }
 }

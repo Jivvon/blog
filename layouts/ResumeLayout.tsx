@@ -41,6 +41,7 @@ export default function ResumeLayout({ children, content }: Props) {
               <SocialIcon kind="linkedin" href={linkedin} />
               <SocialIcon kind="x" href={twitter} />
               <SocialIcon kind="bluesky" href={bluesky} />
+              <SocialIcon kind="pdf" href="#" />
             </div>
           </div>
           <div className="prose resume-content dark:prose-invert max-w-none pt-2 pb-8">

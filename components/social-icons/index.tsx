@@ -11,6 +11,7 @@ import {
   Instagram,
   Medium,
   Bluesky,
+  PDF,
 } from './icons'
 
 const components = {
@@ -26,6 +27,7 @@ const components = {
   instagram: Instagram,
   medium: Medium,
   bluesky: Bluesky,
+  pdf: PDF,
 }
 
 type SocialIconProps = {
@@ -42,6 +44,22 @@ const SocialIcon = ({ kind, href, size = 8 }: SocialIconProps) => {
     return null
 
   const SocialSvg = components[kind]
+
+  // PDF 다운로드의 경우 특별 처리
+  if (kind === 'pdf') {
+    return (
+      <button
+        onClick={() => window.print()}
+        className="text-sm text-gray-500 transition hover:text-gray-600 print:hidden"
+        title="PDF 다운로드"
+      >
+        <span className="sr-only">PDF 다운로드</span>
+        <SocialSvg
+          className={`hover:text-primary-500 dark:hover:text-primary-400 fill-current text-gray-700 dark:text-gray-200 h-${size} w-${size}`}
+        />
+      </button>
+    )
+  }
 
   return (
     <a
