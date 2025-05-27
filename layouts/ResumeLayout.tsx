@@ -63,6 +63,24 @@ export default function ResumeLayout({ children, content }: Props) {
           font-weight: 700;
         }
 
+        /* 불렛 포인트 간격 조정 */
+        .prose.resume-content ul li {
+          margin-top: 0.25rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .prose.resume-content ol li {
+          margin-top: 0.25rem;
+          margin-bottom: 0.25rem;
+        }
+
+        /* 중첩된 리스트의 간격도 조정 */
+        .prose.resume-content ul li ul li,
+        .prose.resume-content ol li ol li {
+          margin-top: 0.125rem;
+          margin-bottom: 0.125rem;
+        }
+
         :global(.dark) .prose.resume-content h1 {
           border-bottom-color: #4b5563;
         }
