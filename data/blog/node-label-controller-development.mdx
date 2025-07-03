@@ -1,0 +1,147 @@
+---
+title: 'Node Label Controller 개발 및 활용기'
+date: '2025-07-03'
+tags: ['kubernetes', 'node-label-controller', 'development']
+draft: false
+summary: '비용 최적화를 위해 개발한 Node Label Controller의 개발기를 다룹니다.'
+---
+
+AWS EKS 환경에서 **Karpenter**를 통한 자동 노드 프로비저닝을 사용하고 있는 팀이라면, 클러스터의 노드 수가 하루에도 몇 번씩 요동치는 상황을 겪고 있을 것이다.
+이는 유연하고 효율적인 리소스 활용에는 매우 유리하지만, **호스트 단위로 과금되는 소프트웨어**(예: Datadog Agent)의 비용 관리 측면에서는 고민거리가 된다.
+
+이러한 고민을 해결하기 위해 **Node Label Controller**를 개발하여 Datadog Agent를 효율적으로 운영하는 방법을 소개한다.
+
+## 문제 상황: Datadog이 필요하지만 비용이 너무 비싸다
+
+**Datadog Agent**는 일반적으로 **DaemonSet**으로 설치된다.
+Kubernetes 클러스터 내 모든 노드마다 하나의 에이전트가 설치되어 로그 수집, 메트릭 수집 등을 수행하고 Datadog으로 데이터를 전송한다.
+하지만, **Datadog은 호스트(노드) 단위로 과금**이 이루어져, 노드 수가 많아지면 곧바로 요금이 폭증한다.
+
+회사에서는 **AWS EKS 클러스터**에서 **Karpenter**를 이용한 노드 오토스케일링을 사용하고 있다.
+워크로드의 특성상 수십 대의 노드가 생성/삭제되는 구조였고, **Datadog Agent는 특정 서버 몇 대만 모니터링하면 충분**했다.
+하지만 **DaemonSet은 기본적으로 모든 노드에 설치**되기 때문에 비효율적이었다.
+
+또한 Datadog Agent를 사용하는 NodePool을 따로 운영하고 있었다.
+새로운 서버에 Datadog Agent를 설치하는 것이 필요했지만, 해당 서버 또한 이미 별도의 NodePool로 관리되고 있었다.
+해당 서버는 운영 시간에 Scale-in되지 않았고, 운영 시간과 비운영 시간에 서버 수의 차이가 컸다.
+
+결론적으로 NodePool에 속한 모든 노드에 에이전트를 설치하는 것은 비효율적이어서, **최소한의 노드에만 Datadog Agent를 설치**하기로 했다.
+문제는 이 노드들도 Karpenter로 인해 동적으로 생겼다 없어졌다를 반복한다는 점이다.
+
+_~~그리고.. 휴리스틱하게 하고 싶지 않았다. 이왕이면 선언적으로..~~_
+
+_~~개발 안 한지도 좀 되었고..~~_
+
+## 목표
+
+간단히 요약하면, **DaemonSet은 그대로 유지**하되 **Datadog Agent는 일부 노드에만 배포**하고 싶었다.
+어떤 노드에 배포될지는 **라벨을 기준으로 결정**하며, 이 라벨은 **자동으로, 정책에 따라 업데이트**되도록 했다.
+또한 **비용을 아끼기 위해 scale-in의 우선순위가 가장 낮은 노드에만 설치**하여 호스트가 최대한 변하지 않는 것이 목표였다.
+
+이 모든 요구사항을 만족시키기 위해 **Node Label Controller**를 개발하게 되었다.
+
+## Node Label Controller란?
+
+**Node Label Controller**는 클러스터 내 노드에 라벨을 자동으로 적용하는 커스텀 컨트롤러다.
+사용자가 정의한 **NodeLabelPolicy**에 따라 특정 전략을 사용해 대상 노드를 선별하고, 선택된 노드에 지정된 라벨을 붙여주는 방식으로 동작한다.
+
+### 지원하는 전략
+
+- **oldest**: 생성 시간이 오래된 순으로 N개의 노드를 선택한다.
+- **newest**: 생성 시간이 새로운 순으로 N개의 노드를 선택한다.
+- **random**: 랜덤하게 N개의 노드를 선택한다.
+
+## 활용 가능한 방식: 오래된 노드 5개만 대상
+
+### Step 1: NodeLabelPolicy 생성
+
+아래 정책은 클러스터에서 **가장 오래된 노드 5개**를 선택하여 `monitoring: enabled` 및 `agent: datadog` 라벨을 자동으로 붙인다.
+
+```yaml
+apiVersion: nlp.lento.dev/v1alpha1
+kind: NodeLabelPolicy
+metadata:
+  name: monitoring-nodes
+spec:
+  strategy:
+    type: oldest
+    count: 5
+  labels:
+    monitoring: enabled
+    agent: datadog
+```
+
+### Step 2: Datadog DaemonSet에 NodeSelector 추가
+
+라벨이 부여된 노드에만 DaemonSet이 배포되도록 설정한다.
+
+```yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: datadog-agent
+spec:
+  selector:
+    matchLabels:
+      name: datadog-agent
+  template:
+    metadata:
+      labels:
+        name: datadog-agent
+    spec:
+      nodeSelector:
+        monitoring: enabled
+        agent: datadog
+      containers:
+        - name: datadog-agent
+          image: datadog/agent:latest
+```
+
+이 정책을 통해 **Node Label Controller는 항상 가장 오래된 5개의 노드**에 `monitoring: enabled` 및 `agent: datadog` 라벨을 유지한다.
+새로운 노드가 추가되거나 기존 노드가 제거되어도 **Node Label Controller가 자동으로 노드를 선별**하여 라벨을 유지하게 된다.
+
+## 왜 오래된 노드를 선택하는 것일까?
+
+가장 오래된 노드를 선택하는 이유는 Replicas가 줄어들 때 Pod가 선택되는 기준 때문이다. 상태가 정상이거나 pod-deletion-cost 어노테이션과 같이 특별한 설정이 없는 경우, 오래될수록 Pod의 우선순위가 더 낮기 때문에 오래 떠 있게 된다.
+
+즉, 호스트 단위로 요금이 부과되는 Datadog Agent의 경우, 오래된 노드를 선택하는 것이 비용 최적화에 도움이 된다.
+
+https://github.com/kubernetes/kubernetes/blob/master/pkg/controller/controller_utils.go#L703-L735
+
+```go
+func (s ByLogging) Less(i, j int) bool {
+	// 1. assigned < unassigned
+	if s[i].Spec.NodeName != s[j].Spec.NodeName && (len(s[i].Spec.NodeName) == 0 || len(s[j].Spec.NodeName) == 0) {
+		return len(s[i].Spec.NodeName) > 0
+	}
+	// 2. PodRunning < PodUnknown < PodPending
+	if s[i].Status.Phase != s[j].Status.Phase {
+		return podPhaseToOrdinal[s[i].Status.Phase] > podPhaseToOrdinal[s[j].Status.Phase]
+	}
+	// 3. ready < not ready
+	if podutil.IsPodReady(s[i]) != podutil.IsPodReady(s[j]) {
+		return podutil.IsPodReady(s[i])
+	}
+	// TODO: take availability into account when we push minReadySeconds information from deployment into pods,
+	//       see https://github.com/kubernetes/kubernetes/issues/22065
+	// 4. Been ready for more time < less time < empty time
+	if podutil.IsPodReady(s[i]) && podutil.IsPodReady(s[j]) {
+		readyTime1 := podReadyTime(s[i])
+		readyTime2 := podReadyTime(s[j])
+		if !readyTime1.Equal(readyTime2) {
+			return afterOrZero(readyTime2, readyTime1)
+		}
+	}
+	// 5. Pods with containers with higher restart counts < lower restart counts
+	if res := compareMaxContainerRestarts(s[i], s[j]); res != nil {
+		return *res
+	}
+	// 6. older pods < newer pods < empty timestamp pods
+	if !s[i].CreationTimestamp.Equal(&s[j].CreationTimestamp) {
+		return afterOrZero(&s[j].CreationTimestamp, &s[i].CreationTimestamp)
+	}
+	return false
+}
+```
+
+_Github: [node-label-controller](https://github.com/jivvon/node-label-controller)_

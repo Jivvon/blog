@@ -1,6 +1,8 @@
 {
+  "kubernetes": 2,
+  "node-label-controller": 1,
+  "development": 1,
   "channeltalk": 1,
-  "kubernetes": 1,
   "webrtc": 1,
   "troubleshooting": 1,
   "github": 1,
