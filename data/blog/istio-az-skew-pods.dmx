@@ -12,3 +12,114 @@ Istio를 사용하는 환경에서 Pod가 스케일링될 때 AZ 간에 고르�
 Scale-Out될 때에는 topologySpreadConstraints? 그거 활용할 수 있을 것 같은데 Scale-in 될 때가 문제임
 AZ 한 곳에 다 내려가면 어떡해
 이거 때문에 Istio에서 동일 AZ에만 트래픽이 가도록 설정하는 옵션을 켤 수가 없어
+
+
+---
+
+## Istio Ambient Mode에서 동일 AZ 트래픽 라우팅 및 비용 최적화 방법
+
+Istio Ambient Mode에서 **동일한 Availability Zone(AZ) 내 트래픽만 라우팅**하여 네트워크 비용을 최적화하려면, zTunnel과 Waypoint Proxy의 배치 및 설정이 핵심입니다. 아래에 구체적인 방법과 설정 예시를 안내합니다.
+
+### 1. 원리 및 구조
+
+- **zTunnel**: 각 노드에 배포되는 L4 프록시로, 기본적으로 동일 AZ 내 트래픽을 우선적으로 라우팅합니다. 이를 통해 불필요한 cross-AZ 트래픽을 줄일 수 있습니다.
+- **Waypoint Proxy**: L7 트래픽 관리가 필요한 경우 사용되며, AZ별로 배포하지 않으면 cross-AZ 트래픽이 발생할 수 있습니다. Waypoint Proxy는 반드시 각 AZ에 분산 배포해야 합니다[1][2].
+
+### 2. 설정 방법
+
+#### 2.1 zTunnel의 Locality Awareness
+
+- zTunnel은 기본적으로 노드의 지역(locality) 정보를 인식하여, 동일 AZ 내 트래픽을 우선 처리합니다.
+- `istioctl ztunnel-config workload -o yaml` 명령어로 zTunnel의 locality 정보를 확인할 수 있습니다.
+- 별도의 추가 설정 없이도 zTunnel은 동일 AZ 우선 라우팅을 지원합니다[1][2].
+
+#### 2.2 Waypoint Proxy의 AZ별 배포
+
+- **Waypoint Proxy는 AZ별로 반드시 배포**해야 하며, 그렇지 않으면 cross-AZ 트래픽이 발생해 비용이 증가합니다.
+- 각 AZ에 최소 1개 이상의 Waypoint Proxy를 배포하고, 해당 AZ의 서비스/네임스페이스가 해당 Waypoint를 사용하도록 설정합니다.
+- 네임스페이스, 서비스, 또는 Pod 단위로 `istio.io/use-waypoint` 라벨을 추가하여 Waypoint Proxy를 지정할 수 있습니다[3].
+
+```bash
+# 예시: default 네임스페이스에 Waypoint Proxy 지정
+kubectl label ns default istio.io/use-waypoint=waypoint-az1
+```
+
+- AZ별로 네임스페이스를 분리하거나, 서비스별로 라벨을 다르게 지정해 각 AZ의 Waypoint Proxy를 사용하도록 구성합니다.
+
+#### 2.3 Locality 기반 Load Balancing (추가 옵션)
+
+- 필요시, VirtualService와 DestinationRule에서 locality load balancing을 추가로 설정할 수 있습니다.
+- 이를 통해 동일 AZ 내 인스턴스에 우선적으로 트래픽이 분배되도록 할 수 있습니다.
+
+```yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: example
+spec:
+  host: my-service
+  trafficPolicy:
+    loadBalancer:
+      localityLbSetting:
+        enabled: true
+        distribute:
+        - from: region/zone
+          to:
+            region/zone: 100
+```
+- 위 예시에서 `region/zone`에 해당 AZ 정보를 입력합니다.
+
+### 3. 운영 팁
+
+- **Waypoint Proxy의 배치 위치**와 **라벨링**이 가장 중요합니다. AZ별로 분산 배포하지 않으면 cross-AZ 트래픽이 발생할 수 있습니다.
+- zTunnel은 자동으로 locality를 인식하므로, Waypoint Proxy만 신경 쓰면 됩니다.
+- Kiali 등 관찰 도구로 실제 트래픽 경로와 cross-AZ 트래픽 발생 여부를 시각화해 점검할 수 있습니다[1].
+
+### 4. 요약
+
+| 구성 요소         | AZ 인식 | 설정 필요 | 비용 최적화 핵심 |
+|------------------|---------|-----------|------------------|
+| zTunnel          | O       | X         | 자동             |
+| Waypoint Proxy   | X(기본) | O         | AZ별 배포/라벨   |
+
+- **zTunnel**: 별도 설정 없이 AZ 우선 라우팅 지원
+- **Waypoint Proxy**: AZ별로 배포 및 라벨 지정 필수
+
+### 참고
+
+- zTunnel은 기본적으로 AZ 우선 라우팅을 지원하지만, Waypoint Proxy는 직접 AZ별로 배포해야 cross-AZ 비용을 줄일 수 있습니다[1][2][3].
+
+[1]
+[2]
+[3]
+
+[1] https://tetrate.io/blog/istio-ambient-cost-comparison
+[2] https://jimmysong.io/en/blog/comparing-network-costs-istio-modes/
+[3] https://istio.io/latest/docs/ambient/usage/waypoint/
+[4] https://istio.io/latest/docs/concepts/traffic-management/
+[5] https://devocean.sk.com/blog/techBoardDetail.do?ID=167588&boardType=techBlog
+[6] https://jimmysong.io/en/blog/istio-ambient-ebpf/
+[7] https://jimmysong.io/en/blog/beyond-sidecar/
+[8] https://www.solo.io/blog/istio-more-for-less
+[9] https://github.com/istio/istio/issues/54994
+[10] https://www.youtube.com/watch?v=EkpdKVm9kQY
+[11] https://developers.redhat.com/articles/2025/03/12/try-istio-ambient-mode-red-hat-openshift
+[12] https://istio.io/latest/docs/tasks/traffic-management/locality-load-balancing/
+[13] https://www.anyflow.net/sw-engineer/istio-ambient-mode
+[14] https://istio.io/latest/docs/overview/dataplane-modes/
+[15] https://github.com/istio/istio/issues/54540
+[16] https://speakerdeck.com/redhatlivestreaming/whats-next-in-openshift-q2-cy2025
+[17] https://www.solo.io/blog/reduce-cloud-cost-istio-ambient-mesh
+[18] https://hackjsp.tistory.com/101
+[19] https://istio.io/latest/docs/ambient/usage/add-workloads/
+[20] https://blogs.oracle.com/cloud-infrastructure/post/istio-ambient-mode-new-dawn-kubernetes-efficiency
+[21] https://www.solo.io/blog/istio-ambient-waypoint-proxy-deployment-model-explained
+[22] https://istio.io/latest/docs/ambient/architecture/data-plane/
+[23] https://ambientmesh.io/blog/sidecar-migration-part-4/
+[24] https://www.zhaohuabing.com/post/2022-09-10-try-istio-ambient-english/
+[25] https://sysnet4admin.gitbook.io/cncf/blog-and-news-ko/blog/project/istio-waypoint
+[26] https://www.solo.io/blog/istio-ambient-mesh-azure-kubernetes-service
+[27] https://ambientmesh.io/docs/setup/sidecar-migration/
+[28] https://istio.io/latest/docs/ops/deployment/performance-and-scalability/
+[29] https://istio.io/latest/docs/ambient/architecture/traffic-redirection/
+[30] https://jimmysong.io/en/blog/istio-ambient-l7-flow-analysis/
