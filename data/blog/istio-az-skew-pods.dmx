@@ -1,0 +1,14 @@
+---
+title: 'Istio를 사용하는 환경에서 Pod가 스케일링될 때 AZ 간에 고르게 분포하기 위함'
+date: '2025-07-06'
+tags: ['']
+draft: true
+summary: ''
+---
+
+## TODO
+
+Istio를 사용하는 환경에서 Pod가 스케일링될 때 AZ 간에 고르게 분포하기 위함
+Scale-Out될 때에는 topologySpreadConstraints? 그거 활용할 수 있을 것 같은데 Scale-in 될 때가 문제임
+AZ 한 곳에 다 내려가면 어떡해
+이거 때문에 Istio에서 동일 AZ에만 트래픽이 가도록 설정하는 옵션을 켤 수가 없어
