@@ -1,7 +1,12 @@
 {
+  "golang": 1,
+  "design-pattern": 1,
+  "options-pattern": 1,
   "kubernetes": 2,
   "node-label-controller": 1,
   "development": 1,
+  "terraform": 1,
+  "refactoring": 1,
   "channeltalk": 1,
   "webrtc": 1,
   "troubleshooting": 1,

@@ -1,0 +1,151 @@
+---
+title: 'GoLang Options Pattern'
+date: '2025-07-05'
+tags: ['golang', 'design-pattern', 'options-pattern']
+draft: true
+summary: 'Go Options Pattern에 대해 간단히 알아보고, Kubernetes, Prometheus, AWS SDK에서 활용된 사례를 소개합니다'
+---
+
+리서치를 하거나 특정 기능에 대해 자세히 알아볼 때, 혹은 디버깅 과정에서 오픈소스 코드를 자주 참고하는 편이다.
+aws-sdk-go-v2에서 클라이언트를 초기화할 때나, Prometheus의 Go 라이브러리에서 메트릭을 설정할 때 Option 또는 Opt이라는 네이밍으로 추가 설정을 적용하는 코드가 눈에 띄었고,
+그 과정에서 Go 언어의 Options Pattern을 알게 되었다. 확장성이 매우 뛰어나다고 생각했는데, 마침 팀 내에서 사용하는 배포 시스템을 리팩토링하는 과정에서도
+Options Pattern이 적극적으로 사용된 것을 발견해 왠지 모를 반가움을 느꼈다. 그 기념으로 이렇게 기록을 남기고자 한다.
+
+## Go 언어의 Options Pattern이란?
+
+Options Pattern은 함수의 매개변수가 많거나 선택적인 매개변수가 많은 경우에 유용한 디자인 패턴으로,
+복잡한 설정 객체를 보다 유연하고 확장 가능하게 다룰 수 있도록 도와준다.
+일반적으로 옵션들은 `func(*Config)` 또는 `func(Config)` 형태의 함수 타입으로 정의되며, 이 함수들은 **설정 객체의 필드를 수정하는 방식**으로 동작한다.
+이러한 옵션 함수들은 주로 클라이언트나 서비스의 생성자 함수에서 가변 인자로 전달되며, 호출자는 필요한 옵션만을 선택적으로 넘길 수 있다.
+설정 객체에는 명시적인 옵션이 제공되지 않았을 때 적용될 기본값이 존재하며, 옵션 함수들은 이를 오버라이드하는 방식으로 사용된다.
+
+Options Pattern은 Go 언어 기반 프로젝트에서 코드의 품질과 유지보수성을 높여주는 여러 장점을 가진다.
+다양한 매개변수를 가진 함수에서 필요한 옵션만 선택적으로 넘길 수 있어 유연성이 뛰어나고,
+`NewClient(WithTimeout(5*time.Second), WithMaxRetries(3))`처럼 **옵션의 이름이 목적을 명확히 드러내므로 코드의 가독성이 향상**된다.
+또한 새로운 옵션을 추가하더라도 **기존 함수의 시그니처를 바꿀 필요가 없어** 하위 호환성을 유지하기 쉬워 확장성이 뛰어나며,
+각 옵션이 어떤 설정을 변경하는지 명확하게 드러나므로 코드의 의도를 쉽게 파악할 수 있는 명시성도 확보된다.
+
+## Prometheus Go client library의 활용 사례
+
+Prometheus의 Go 클라이언트 라이브러리인 [client_golang](https://github.com/prometheus/client_golang)은 메트릭을 생성할 때 `Opts` 구조체를 사용하여 다양한 옵션을 설정한다.
+이는 직접적인 함수형 옵션(`func(*Config)` 형태)은 아니지만, 객체 생성 시 유연한 설정을 제공한다는 점에서 Options Pattern과 유사한 목적을 가진다.
+`Opts` 구조체를 통해 메트릭의 이름, 도움말, 레이블 등을 정의한다.
+
+#### Counter Option 참고
+
+https://github.com/prometheus/client_golang/blob/v1.22.0/prometheus/counter.go#L61
+
+#### 예시: Counter 및 Gauge 생성
+
+```go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+)
+
+var (
+	// NewCounter 함수에 prometheus.CounterOpts를 사용하여 카운터 설정
+	httpRequestsTotal = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "http_requests_total",
+			Help: "Total number of HTTP requests.",
+			ConstLabels: prometheus.Labels{
+				"service": "my-go-app",
+			},
+		},
+	)
+
+	// NewGauge 함수에 prometheus.GaugeOpts를 사용하여 게이지 설정
+	goroutinesGauge = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "go_goroutines",
+			Help: "Current number of goroutines.",
+		},
+	)
+)
+
+func init() {
+	prometheus.MustRegister(httpRequestsTotal)
+	prometheus.MustRegister(goroutinesGauge)
+}
+
+func main() {
+	http.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
+		httpRequestsTotal.Inc()
+		goroutinesGauge.Set(10 + float64(httpRequestsTotal.Add(0)))
+		promhttp.Handler().ServeHTTP(w, r)
+	})
+	fmt.Println("Prometheus metrics server listening on :8443")
+	http.ListenAndServe(":8443", nil)
+}
+```
+
+이 예시에서는 `prometheus.CounterOpts`와 `prometheus.GaugeOpts` 구조체를 사용하여 메트릭의 Name, Help, ConstLabels 등을 설정한다.
+`NewCounter`나 `NewGauge` 함수는 이 `Opts` 구조체를 인자로 받아 메트릭 객체를 초기화하는 방식으로 유연성을 제공한다.
+
+## AWS SDK for Go v2의 활용 사례
+
+`aws-sdk-go-v2`는 Go 언어의 Functional Options Pattern을 적극적으로 활용하는 대표적인 사례다.
+AWS 서비스와 상호작용하기 위한 공식 SDK인 이 라이브러리는 클라이언트 생성 및 설정 과정에서 함수형 옵션을 통해
+AWS 클라이언트의 리전, 자격 증명, HTTP 클라이언트 설정, 재시도 로직 등을 매우 유연하게 구성할 수 있도록 한다.
+
+#### 예시: SDK 구성 및 DynamoDB 클라이언트 생성
+
+```go
+package main
+
+import (
+	"context"
+	"log"
+	"net/http"
+	"time"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+)
+
+func main() {
+	// SDK의 기본 구성 로드 및 옵션 적용
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion("ap-northeast-2"), // 리전 설정
+		config.WithHTTPClient(&http.Client{Timeout: 5 * time.Second}), // HTTP 클라이언트 설정
+		config.WithLogConfigurationWarnings(true), // 설정 경고 로깅 활성화
+	)
+	if err != nil {
+		log.Fatalf("unable to load SDK config, %v", err)
+	}
+
+	svc := dynamodb.NewFromConfig(cfg)
+}
+```
+
+`config.WithRegion`, `config.WithSharedConfigProfile`, `config.WithHTTPClient` 등은 모두 `config.Option` 타입의 함수다.
+이 함수들은 `config.LoadDefaultConfig`로 전달되어 SDK의 구성을 변경하며, 이는 Go의 Functional Options Pattern의 전형적인 활용 사례를 보여준다.
+
+## Kubernetes Controller
+
+#### client-go (Kubernetes Go 클라이언트 라이브러리)
+
+Kubernetes API와 상호작용하기 위한 `client-go` 라이브러리에서 클라이언트 객체를 생성할 때 다양한 설정을 Options Pattern의 변형으로 제공한다.
+예를 들어, `rest.Config` 객체를 직접 설정하거나, 클라이언트셋을 빌드할 때 `rest.Options`와 유사한 방식을 사용하여 연결 설정을 조작하는 경우를 볼 수 있다.
+
+#### controller-runtime
+
+Kubernetes 컨트롤러를 쉽게 개발할 수 있도록 돕는 `controller-runtime` 라이브러리 또한 Options Pattern을 활용한다.
+특히 `manager.Manager` 객체를 생성할 때 `manager.Options` 구조체를 통해 다양한 설정을 전달할 수 있다.
+이 `manager.Options`는 빌더 패턴의 일부로 볼 수 있지만, 개별 필드를 설정하는 방식은 Options Pattern과 유사한 유연성을 제공한다.
+
+직접 함수형 옵션을 사용하는 대신 옵션들을 포함하는 구조체를 인자로 전달하는 방식을 사용하는 것 또한,
+핵심 아이디어는 기본값을 가진 객체를 생성하고, 명시적으로 제공된 옵션들로 이를 오버라이드하는 동일한 목적을 가진다.
+
+## 결론
+
+Go 언어의 Options Pattern은 복잡한 설정이나 다양한 선택적 매개변수를 가진 함수 및 객체 생성에 매우 효과적인 디자인 패턴이다.
+Prometheus, AWS SDK, Kubernetes와 같은 Go 기반의 대규모 오픈소스 프로젝트들이 이 패턴을 적극적으로 활용하는 것은,
+이러한 프로젝트들이 매우 유연하고 확장 가능한 설정 방식을 필요로 하기 때문이다.
+Options Pattern을 이해하고 적절히 활용하여 높은 유연성, 가독성, 확장성까지 확보하는 기깔나는 코드를 작성해보자.
