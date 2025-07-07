@@ -5,7 +5,7 @@ const siteMetadata = {
   headerTitle: "Jiwon's Blog",
   description: '',
   language: 'ko-KR',
-  theme: 'system', // system, dark or light
+  theme: 'light', // system, dark or light
   siteUrl: 'https://blog.lento.dev',
   siteRepo: 'https://github.com/jivvon/blog',
   // siteLogo: `${process.env.BASE_PATH || ''}/static/images/logo.png`,
