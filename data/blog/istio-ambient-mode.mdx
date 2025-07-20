@@ -52,7 +52,5 @@ ztunnel은 단일 프로세스 내에서 여러 개의 논리적인 계층을 �
 5. (같은 노드인 경우) pistioout 인터페이스를 통해 수신된 트래픽은 Geneve 헤더를 제거하여 원래의 IP 패킷으로 디캡슐레이션된다.
 6. 디캡슐레이션된 패킷은 목적지 Pod의 IP 주소로 전송되고, Pod의 네트워크 네임스페이스에 사전에 설정된 iptables 규칙에 따라 해당 어플리케이션으로 전달된다.
 
-- 참고
-
 ![Istio Ambient Mode L4 Traffic Flow](/static/posts/istio-ambient-mode-l4-flow.png)
 ref: https://jimmysong.io/blog/ambient-mesh-l4-traffic-path/
