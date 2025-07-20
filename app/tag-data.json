@@ -1,8 +1,10 @@
 {
+  "istio": 1,
+  "ambient-mode": 1,
+  "kubernetes": 3,
   "golang": 1,
   "design-pattern": 1,
   "options-pattern": 1,
-  "kubernetes": 2,
   "node-label-controller": 1,
   "development": 1,
   "terraform": 1,
