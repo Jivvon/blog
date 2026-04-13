@@ -12,7 +12,9 @@
     "prepare": "husky",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,md,html}\"",
     "resume:pdf": "node scripts/generate-resume-pdf.mjs",
-    "resume:pdf:open": "node scripts/generate-resume-pdf.mjs && open public/resume.pdf"
+    "resume:pdf:open": "node scripts/generate-resume-pdf.mjs && open public/resume.pdf",
+    "career:pdf": "node scripts/generate-career-pdf.mjs",
+    "career:pdf:open": "node scripts/generate-career-pdf.mjs && open public/career.pdf"
   },
   "dependencies": {
     "@headlessui/react": "2.2.0",
