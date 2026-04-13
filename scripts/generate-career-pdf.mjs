@@ -99,13 +99,21 @@ async function generatePDF(outputPath) {
     path: outputPath,
     format: 'A4',
     margin: {
-      top: '0.4cm',
+      top: '1.2cm',
       right: '0.5cm',
-      bottom: '0.5cm',
+      bottom: '1cm',
       left: '0.5cm',
     },
     printBackground: true,
-    displayHeaderFooter: false,
+    displayHeaderFooter: true,
+    headerTemplate: `
+      <div style="width: 100%; font-size: 10px; color: #999; padding: 0 0.5cm; text-align: center; font-family: 'Noto Sans KR', sans-serif;">
+        경력기술서_정지원
+      </div>`,
+    footerTemplate: `
+      <div style="width: 100%; font-size: 9px; color: #999; text-align: center;">
+        <span class="pageNumber"></span> / <span class="totalPages"></span>
+      </div>`,
   })
 
   await browser.close()
