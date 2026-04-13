@@ -1,20 +1,20 @@
-import { Resume, allResumes } from 'contentlayer/generated'
-import { MDXLayoutRenderer } from 'pliny/mdx-components'
-import ResumeLayout from '@/layouts/ResumeLayout' // FIXME
-import { coreContent } from 'pliny/utils/contentlayer'
+import fs from 'fs'
+import path from 'path'
+import yaml from 'js-yaml'
 import { genPageMetadata } from 'app/seo'
+import { ResumeData } from '@/components/resume/types'
+import ResumeClient from './ResumeClient'
 
 export const metadata = genPageMetadata({ title: 'Resume' })
 
-export default function Page() {
-  const resume = allResumes.find((p) => p.slug === 'main') as Resume
-  const mainContent = coreContent(resume)
+function loadResumeData(): ResumeData {
+  const filePath = path.join(process.cwd(), 'data', 'resume.yaml')
+  const fileContents = fs.readFileSync(filePath, 'utf8')
+  return yaml.load(fileContents) as ResumeData
+}
 
-  return (
-    <>
-      <ResumeLayout content={mainContent}>
-        <MDXLayoutRenderer code={resume.body.code} />
-      </ResumeLayout>
-    </>
-  )
+export default function ResumePage() {
+  const data = loadResumeData()
+
+  return <ResumeClient data={data} />
 }

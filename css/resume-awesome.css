@@ -1,0 +1,351 @@
+/* ==========================================================================
+   Awesome-CV Style Recreation
+   Based on: https://github.com/posquit0/Awesome-CV (awesome-cv.cls)
+   ========================================================================== */
+
+/* ---------- CSS Variables (from LaTeX color definitions) ---------- */
+:root {
+  --acv-awesome: #dc3522;
+  --acv-darktext: #414141;
+  --acv-text: #333333;
+  --acv-graytext: #5d5d5d;
+  --acv-lighttext: #999999;
+  --acv-section-divider: #5d5d5d;
+}
+
+/* ---------- Resume Container ---------- */
+.acv-resume {
+  font-family: var(--font-noto-sans-kr), 'Noto Sans KR', sans-serif;
+  color: var(--acv-text);
+  line-height: 1.2;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------- Header ---------- */
+.acv-header {
+  text-align: center;
+  margin-bottom: 6mm;
+}
+
+.acv-header-name {
+  font-size: 32pt;
+  line-height: 1.1;
+  margin-bottom: 0.4mm;
+}
+
+.acv-header-firstname {
+  font-weight: 300;
+  color: var(--acv-graytext);
+}
+
+.acv-header-lastname {
+  font-weight: 700;
+  color: var(--acv-text);
+}
+
+.acv-header-position {
+  font-size: 7.6pt;
+  font-variant: small-caps;
+  text-transform: lowercase;
+  color: var(--acv-awesome);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.4mm;
+}
+
+.acv-header-address {
+  font-size: 8pt;
+  font-style: italic;
+  color: var(--acv-lighttext);
+  margin-bottom: 2mm;
+}
+
+.acv-header-social {
+  font-size: 6.8pt;
+  color: var(--acv-text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+}
+
+.acv-header-social a {
+  color: var(--acv-text);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+}
+
+.acv-header-social a:hover {
+  color: var(--acv-awesome);
+}
+
+.acv-header-social-sep {
+  margin: 0 0.8em;
+  color: var(--acv-text);
+}
+
+.acv-header-social svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+/* ---------- Section ---------- */
+.acv-section {
+  margin-top: 3mm;
+}
+
+.acv-section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  margin-bottom: 2.5mm;
+}
+
+.acv-section-title {
+  font-size: 16pt;
+  font-weight: 700;
+  color: var(--acv-text);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.acv-section-title-accent {
+  color: var(--acv-awesome);
+}
+
+.acv-section-divider {
+  flex: 1;
+  height: 0.9pt;
+  background-color: var(--acv-section-divider);
+  margin-left: 0.3em;
+  align-self: center;
+}
+
+/* ---------- Paragraph (Summary) ---------- */
+.acv-paragraph {
+  font-size: 9pt;
+  font-weight: 300;
+  color: var(--acv-text);
+  line-height: 1.4;
+  margin-top: -1mm;
+}
+
+/* ---------- Entry (Experience / Education) ---------- */
+.acv-entries {
+  margin-top: 2.5mm;
+}
+
+.acv-entry {
+  margin-bottom: 1mm;
+}
+
+.acv-entry-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0;
+  align-items: baseline;
+}
+
+.acv-entry-title {
+  font-size: 10pt;
+  font-weight: 700;
+  color: var(--acv-darktext);
+  line-height: 1.4;
+}
+
+.acv-entry-location {
+  font-size: 9pt;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--acv-awesome);
+  text-align: right;
+}
+
+.acv-entry-position {
+  font-size: 8pt;
+  font-variant: small-caps;
+  text-transform: lowercase;
+  color: var(--acv-graytext);
+  line-height: 1.4;
+}
+
+.acv-entry-date {
+  font-size: 8pt;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--acv-graytext);
+  text-align: right;
+}
+
+/* ---------- CV Items (Bullet List) ---------- */
+.acv-items {
+  margin: 0;
+  padding: 0;
+  padding-left: 2ex;
+  list-style: disc;
+  font-size: 9pt;
+  font-weight: 300;
+  color: var(--acv-text);
+  line-height: 1.4;
+}
+
+.acv-items li {
+  margin: 0;
+  padding: 0;
+  padding-left: 0.3ex;
+}
+
+.acv-items li::marker {
+  font-size: 0.7em;
+}
+
+/* ---------- Honor (Writing) ---------- */
+.acv-honors {
+  margin-top: 0.5mm;
+}
+
+.acv-honor {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.8em;
+  align-items: baseline;
+  font-size: 9pt;
+}
+
+.acv-honor-date {
+  color: var(--acv-graytext);
+  white-space: nowrap;
+}
+
+.acv-honor-title {
+  font-weight: 700;
+  color: var(--acv-darktext);
+}
+
+.acv-honor-title a {
+  color: var(--acv-darktext);
+  text-decoration: none;
+}
+
+.acv-honor-title a:hover {
+  color: var(--acv-awesome);
+  text-decoration: underline;
+}
+
+.acv-honor-location {
+  font-weight: 300;
+  font-style: italic;
+  color: var(--acv-awesome);
+  text-align: right;
+}
+
+/* ---------- Footer ---------- */
+.acv-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  font-size: 8pt;
+  font-variant: small-caps;
+  text-transform: lowercase;
+  color: var(--acv-lighttext);
+  padding: 0 1.4cm 0.5cm;
+}
+
+.acv-footer-left {
+  text-align: left;
+}
+
+.acv-footer-center {
+  text-align: center;
+}
+
+.acv-footer-right {
+  text-align: right;
+}
+
+/* ---------- Print / PDF Styles ---------- */
+@media print {
+  @page {
+    size: A4;
+    margin: 0.8cm 1.4cm 1.8cm 1.4cm;
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: initial !important;
+    line-height: initial !important;
+    background: white !important;
+  }
+
+  /* Hide blog layout elements */
+  body > div > section > header,
+  body > div > section > footer,
+  body > div > section > div > header,
+  body > div > section > div > footer,
+  nav,
+  .acv-download-btn {
+    display: none !important;
+  }
+
+  /* Remove blog container constraints */
+  body > div > section {
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  body > div > section > main {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .acv-resume {
+    padding: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
+  .acv-footer {
+    position: fixed;
+    bottom: 0;
+  }
+
+  * {
+    color: inherit !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  a {
+    text-decoration: none !important;
+  }
+}
+
+/* ---------- Screen-only: A4 preview ---------- */
+@media screen {
+  .acv-resume-wrapper {
+    background: #f0f0f0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .acv-resume {
+    background: white;
+    width: 210mm;
+    min-height: 297mm;
+    padding: 0.8cm 1.4cm 1.8cm 1.4cm;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+    position: relative;
+  }
+}
