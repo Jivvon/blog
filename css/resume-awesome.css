@@ -130,8 +130,9 @@
   font-size: 10.5pt;
   font-weight: 300;
   color: var(--acv-text);
-  line-height: 1.4;
-  margin-top: -1mm;
+  line-height: 1.6;
+  margin-top: 1mm;
+  margin-bottom: 2mm;
 }
 
 /* ---------- Entry (Experience / Education) ---------- */
@@ -140,7 +141,7 @@
 }
 
 .acv-entry {
-  margin-bottom: 1mm;
+  margin-bottom: 3.5mm;
 }
 
 .acv-entry-header {
@@ -154,7 +155,7 @@
   font-size: 12pt;
   font-weight: 700;
   color: var(--acv-darktext);
-  line-height: 1.4;
+  line-height: 1.6;
 }
 
 .acv-entry-location {
@@ -190,11 +191,12 @@
   font-size: 10.5pt;
   font-weight: 300;
   color: var(--acv-text);
-  line-height: 1.4;
+  line-height: 1.6;
 }
 
 .acv-items li {
   margin: 0;
+  margin-bottom: 0.5em;
   padding: 0;
   padding-left: 0.3ex;
 }

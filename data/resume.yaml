@@ -8,17 +8,17 @@ personal:
   linkedin: jwjeong
 
 summary: |
-  4년차 데브옵스 엔지니어로, On-Premise & EKS 환경의 Kubernetes 클러스터 운영에 대해 전문성을 가지고 있습니다.
-  또한, Terraform 기반 IaC 협업 환경 개선, Multi-Cluster 관리 환경 구축 등 다양한 소프트웨어 엔지니어링 경험을 보유하고 있습니다.
+  5년차 플랫폼/데브옵스 엔지니어로, EKS와 Terraform 기반의 대규모 멀티 클러스터 환경을 관리하며 인프라 파편화를 해소하는 일에 몰두하고 있습니다.
+  특히 최근에는 개발 조직 전체의 생산성(DX)을 극대화하기 위해, 개발자가 스스로 안전하게 리소스를 프로비저닝할 수 있는 사내 내부 개발자 플랫폼(IDP, QWER) 설계 및 구축을 주도하고 있습니다.
 
-  도전적인 과제에 대해 더 나은 문제 해결 방법을 고민하고, 새로운 기술과 도구를 배우는 데 관심이 많습니다.
-  기술을 단순히 사용하는 데 그치지 않고, 그 원리와 구조를 이해하기 위해 꾸준히 노력하고 있습니다.
+  Zero-downtime 마이그레이션과 플랫폼 아키텍처 고도화뿐 아니라, 최근에는 AI 에이전트와 LLM을 로컬 워크플로우 및 DevSecOps 파이프라인에 적극 통합하여 휴먼 에러를 통제하고 엔지니어링 리듬을 한 차원 높이는 혁신을 지속해서 전파하고 있습니다.
 
 experience:
   - company: "Channel Corp. (Channel Talk)"
     role: DevOps Engineer
     location: Seoul, S.Korea
     period: "May. 2022 - Present"
+    items:
       - "[Platform Engineering] 개발자가 직접 SQS 등 권한을 획득할 수 있는 셀프 서비스 생태계(QWER) 인프라 추상화 설계 및 포털 구축으로 배포 리드타임 대폭 단축"
       - "[Zero Downtime] Terraform 'moved.tf'와 AI 에이전트를 조합하여 14개 환경 이상의 EKS 인증 아키텍처(IRSA → Pod Identity)를 단 1건의 장애 없이 무중단 마이그레이션 달성"
       - "[Reliability] WebRTC 서버 묵음(EIP API Timegap) 및 Egress 수용량 충돌(Worker Affinity) 현상 규명. 트래픽 Drop 오류 원천 차단 및 처리량 70% 증대"
