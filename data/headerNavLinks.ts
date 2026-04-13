@@ -4,7 +4,7 @@ const headerNavLinks = [
   { href: '/tags', title: 'Tags' },
   // { href: '/projects', title: 'Projects' },
   { href: '/about', title: 'About' },
-  // { href: '/resume', title: 'Resume' },
+  ...(process.env.NODE_ENV === 'development' ? [{ href: '/resume', title: 'Resume' }] : []),
   // { href: '/portfolio', title: 'Portfolio' },
 ]
 
