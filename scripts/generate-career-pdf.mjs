@@ -47,21 +47,50 @@ async function generatePDF(outputPath) {
       el.style.paddingBottom = '0'
       el.style.marginTop = '0'
     })
+
+    // ── 전체 줄 간격 및 bullet 여백 줄이기 ──
     const prose = document.querySelector('.prose')
     if (prose) {
       prose.style.paddingTop = '0'
       prose.style.marginTop = '0'
+      prose.style.lineHeight = '1.8'
+      prose.style.fontSize = '14px'
     }
-
-    // ── 섹션(h2)별 페이지 구분 (첫 번째 제외) ──
-    document.querySelectorAll('.prose h2').forEach((h2, i) => {
-      if (i > 0) {
-        h2.style.pageBreakBefore = 'always'
-        h2.style.paddingTop = '0'
-      }
+    // bullet(li) 간 여백 줄이기
+    document.querySelectorAll('.prose li').forEach((li) => {
+      li.style.marginTop = '0.1em'
+      li.style.marginBottom = '0.1em'
+    })
+    // ul/ol 리스트 전후 여백 줄이기 (텍스트와 bullet 사이)
+    document.querySelectorAll('.prose ul, .prose ol').forEach((list) => {
+      list.style.marginTop = '0.2em'
+      list.style.marginBottom = '0.2em'
+      list.style.paddingLeft = '0.6em'
+    })
+    // p 태그 여백 줄이기
+    document.querySelectorAll('.prose p').forEach((p) => {
+      p.style.marginTop = '0.3em'
+      p.style.marginBottom = '0.3em'
+    })
+    // h2, h3 여백 줄이기
+    document.querySelectorAll('.prose h2').forEach((h2) => {
+      h2.style.marginTop = '0.5em'
+      h2.style.marginBottom = '0.3em'
+    })
+    document.querySelectorAll('.prose h3').forEach((h3) => {
+      h3.style.marginTop = '0.4em'
+      h3.style.marginBottom = '0.2em'
     })
 
-    // ── hr 구분선 숨기기 (페이지 브레이크가 대체) ──
+    // ── 섹션(h2)별 페이지 구분 (비활성화) ──
+    // document.querySelectorAll('.prose h2').forEach((h2, i) => {
+    //   if (i > 0) {
+    //     h2.style.pageBreakBefore = 'always'
+    //     h2.style.paddingTop = '0'
+    //   }
+    // })
+
+    // ── hr 구분선 숨기기 ──
     document.querySelectorAll('hr').forEach((hr) => (hr.style.display = 'none'))
   })
 
@@ -70,10 +99,10 @@ async function generatePDF(outputPath) {
     path: outputPath,
     format: 'A4',
     margin: {
-      top: '0.8cm',
-      right: '1cm',
-      bottom: '1cm',
-      left: '1cm',
+      top: '0.4cm',
+      right: '0.5cm',
+      bottom: '0.5cm',
+      left: '0.5cm',
     },
     printBackground: true,
     displayHeaderFooter: false,

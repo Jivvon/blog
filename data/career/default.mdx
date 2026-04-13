@@ -63,6 +63,7 @@ processed: false
 - 네트워크
   - Hub VPC는 다른 모든 VPC와 피어링하고, Hub에서의 Outbound는 모두 허용, Inbound는 필요에 따라 허용
 - Spoke 클러스터 프로비저닝 플로우
+
   - 각 운영 도구에서 환경별로 달라지는 설정을 포함한 values.yaml 작성
   - Spoke 클러스터의 개별 설정을 포함한 Terraform 코드 작성 & PR
     - Spoke 클러스터 생성됨
@@ -70,36 +71,7 @@ processed: false
     - Hub ArgoCD에 Spoke 클러스터 등록됨
   - ArgoCD ApplicationSet으로 Spoke 클러스터에 운영 도구 프로비저닝
 
-```mermaid
-graph TD
-    A[ArgoCD ops ApplicationSet] --> E[Matrix Generator 실행]
-    E --> F[Git Generator: ops 하위 경로 스캔]
-    E --> G[Clusters Generator: 클러스터 정보 수집]
-
-    F --> H[경로 파싱:<br/> ops 하위 특정 경로의 values.yaml]
-    G --> I[클러스터 매칭:<br/>cluster.channel.io/name 라벨]
-
-    H --> J[Matrix 조합 생성]
-    I --> J
-
-    J --> K[각 조합별 Application 생성]
-    K --> L[Application 이름:<br/>chart.cluster.sha256sum]
-    K --> M[소스 경로:<br/>ops/chart/version]
-    K --> N[Helm 설정:<br/>차트 설치 경로까지<br/> 모든 values.yaml 오버라이드]
-    K --> O[대상 클러스터 및 네임스페이스]
-
-    L --> P[개별 Application 배포]
-    M --> P
-    N --> P
-    O --> P
-
-    P --> Q[각 클러스터에 실제 리소스 배포]
-
-    style A fill:#e1f5fe
-    style E fill:#fff3e0
-    style K fill:#e8f5e8
-    style Q fill:#ffebee
-```
+- ArgoCD ApplicationSet의 Matrix Generator를 활용하여, Git Generator와 Clusters Generator(라벨 기반 클러스터 매칭)의 조합으로 각 클러스터별 Application을 자동 생성하고, Helm 설정을 오버라이드하여 대상 클러스터에 일괄 배포하는 구조
 
 ---
 
@@ -111,7 +83,7 @@ graph TD
 
 **기간**
 
-- 2023.08 ~
+- 2023.08 ~ 2024.08
 
 **성과**
 
@@ -171,28 +143,47 @@ graph TD
 
 ## [ 장애 대응 및 개선 ]
 
-### 1. WebRTC 서버 스케일링 시 간헐적으로 발생한 묵음 현상
+### 1. Kubernetes 환경 WebRTC 묵음 장애 원인 규명 및 방어 로직 구현
 
 > 트러블슈팅 과정을 작성한 기술 블로그: [https://channel.io/ko/team/blog/articles/1dc56e4a](https://channel.io/ko/team/blog/articles/1dc56e4a)
 
-**배경**
+**[현상]**
 
-- WebRTC 서버를 피크 타임에 맞춰 스케일링하는 과정에서 간헐적으로 묵음 현상이 발생하였으며, 특정 서버에서 반복적으로 ICE 연결 실패가 관찰됨
+- WebRTC 서버 스케일링 과정에서 약 25%의 통화에서 묵음 현상 간헐적 발생.
+- Node Exporter의 `node_netstat_Udp_OutDatagrams` 메트릭을 모니터링한 결과, 세션은 연결되었으나 아웃바운드 패킷이 '0'인 상태임을 확인.
 
-**단기 대응**
+**[원인분석]**
 
-- 장애 발생 전후로 변경된 피크 타임 스케일링 설정을 우선 롤백함
-- 로그 분석을 통해 문제가 특정 파드에서만 발생함을 확인하고, 임시적으로 해당 Pod를 재시작하여 서비스 정상화함
+- AWS EIP(Elastic IP) 할당 API 응답 시간과 실제 네트워크 라우팅이 열리는 시간 사이에 미세한 '시간차'가 존재할 것이라는 가설 수립.
+- 마이크로초 단위로 NTP 동기화된 두 대의 서버를 활용해 정밀 측정 환경 구성. 타겟 EC2에서 `tcpdump`를 실행하고, 클라이언트에서 EIP 할당 API 성공 응답(T1) 직후 0.01초 간격으로 Ping 패킷을 전송하여 최초 패킷 도달 시간(T2)을 측정.
+- 10회 반복 테스트 결과, API 성공 응답 후 실제 인바운드 트래픽이 뚫리기까지 **평균 1초 내외의 지연(Time gap)**이 발생함을 정량적으로 증명.
+- 이 지연 시간 동안 애플리케이션이 너무 빨리 기동하여 외부 통신을 시도하면서 RTP 통신 경로가 형성되지 못하는 상태 불일치(State Mismatch)가 문제의 근본 원인임을 규명.
 
-**Root Cause 분석 및 해결**
+**[해결 및 성과]**
 
-1. **첫 번째 가설:** Private IP를 사용하는 고객은 정상적으로 연결되었지만, Public IP를 사용하는 상담원의 연결에서 문제가 발생. 그러나 Public IP와 관련된 로그와 메트릭에서 정상적으로 설정된 것을 확인
-2. **두 번째 가설:** 종료된 WebRTC 서버의 EIP 정보가 Redis에 남아 잘못된 EIP로 ICE 연결을 시도했을 가능성을 점검. 그러나 Redis 정리가 정상적으로 이루어진 것을 확인
-3. **결정적 단서:** 서버가 삭제된 후 동일한 노드에 다시 생성되는 경우, **EIP 할당/적용 시점과 WebRTC 서버 실행 시점 간의 타이밍 불일치**로 인해 구(舊) EIP 정보가 Redis에 잘못 등록됨
-   - 그 결과, 잘못된 Public IP가 ICE 과정에서 전달되며 묵음 현상이 발생함을 확인
-   - 실제로 EIP 할당과 시스템 적용 간 약 1초의 지연이 존재함을 파악하고, **EIP 적용 완료 여부를 검증하는 방어 로직을 추가**하여 문제를 근본적으로 해결함
+- 단순 Sleep 대기 방식이 아닌, 확정적인 네트워크 연결을 보장하는 방어 로직 구현.
+- AWS CLI의 `associate-address --no-allow-reassociation` 옵션을 활용하고, EIP Pool에 부여된 AWS Tag를 루프 돌며 정상 부착 여부를 명확히 검증한 후 애플리케이션이 통신을 시작하도록 개선.
+- 해당 로직을 프로덕션 환경에 당일 배포하여 묵음 오류 발생률을 0%로 근절하고 서비스 안정성 확보.
 
-### 2. GracefulShutdown 지연으로 인한 로그 손실 문제
+### 2. EKS 마이그레이션 중 AWS SDK 초기화 오류(IRSA) 딥다이브 및 해결
+
+**[현상]**
+
+- ECS에서 EKS로 애플리케이션을 이전하는 과정에서, EKS 환경(IRSA 적용)에서만 특정 애플리케이션이 권한을 획득하지 못하고 `AccessDenied` 예외가 발생.
+- 개발팀에서 원인을 찾지 못해 마이그레이션이 블로킹된 상황.
+
+**[원인분석]**
+
+- CloudTrail 로그를 분석하여 Pod가 명시된 Role을 Assume하려는 이벤트 자체가 실패하고 있음을 1차 확인.
+- 인프라 레이어를 넘어 애플리케이션의 AWS SDK 내부 동작 로직(Credential Provider Chain)을 코드 레벨에서 직접 디버깅.
+- 애플리케이션에서 사용하는 Custom Endpoint Resolver가 STS 요청을 덮어쓰고 있었으며, 명시적으로 설정하지 않은 옵션은 기본값(Default)조차 주입되지 않는 SDK 내부의 엣지 케이스를 발견. 이로 인해 기존에 의존하던 필수 옵션이 누락되어 STS 권한 획득이 실패함을 규명.
+
+**[해결 및 성과]**
+
+- 누락된 필수 옵션을 명시적으로 주입하도록 애플리케이션 코드를 수정하여 문제 즉각 해결.
+- 인프라 엔지니어로서 애플리케이션 레이어의 버그까지 파고들어 동료 개발자들의 장기 미해결 이슈를 해소하고, EKS 마이그레이션 일정을 차질 없이 추진.
+
+### 3. GracefulShutdown 지연으로 인한 로그 손실 문제
 
 **배경**
 
