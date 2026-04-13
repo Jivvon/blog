@@ -1,11 +1,34 @@
 'use client'
 
+import { useEffect } from 'react'
 import { allCareers } from 'contentlayer/generated'
 import { MDXLayoutRenderer } from 'pliny/mdx-components'
 import { coreContent } from 'pliny/utils/contentlayer'
 
 export default function CareerPage() {
   const career = allCareers.find((p) => p.slug === 'default')
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      import('mermaid').then((m) => {
+        m.default.initialize({ startOnLoad: false, theme: 'default' })
+        const elements = document.querySelectorAll('.language-mermaid')
+        let shouldRun = false
+        elements.forEach((el) => {
+          if (el.parentElement && el.parentElement.tagName === 'PRE') {
+            el.parentElement.classList.add('mermaid')
+            el.parentElement.textContent = el.textContent // remove <code> wrapping
+            el.parentElement.style.textAlign = 'center'
+            el.parentElement.style.backgroundColor = 'transparent'
+            shouldRun = true
+          }
+        })
+        if (shouldRun) {
+          m.default.run()
+        }
+      })
+    }
+  }, [career])
 
   if (!career) {
     return <div className="mt-24 text-center">No career document found.</div>
