@@ -1,4 +1,6 @@
 {
+  "container": 1,
+  "oci": 1,
   "istio": 1,
   "ambient-mode": 1,
   "kubernetes": 3,
