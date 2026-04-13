@@ -20,16 +20,28 @@ export default function CareerPage() {
           <h1 className="text-3xl leading-9 font-extrabold tracking-tight text-gray-900 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14 dark:text-gray-100">
             Career
           </h1>
-          <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">
+          <div className="pt-4 pb-2">
             <a
               href="/career.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 decoration-primary-500 underline underline-offset-4"
+              className="bg-primary-500 hover:bg-primary-600 focus-visible:outline-primary-500 inline-flex items-center rounded-lg px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             >
-              📄 경력기술서 PDF 다운로드
+              <svg
+                className="mr-2 h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              경력기술서 PDF 다운로드
             </a>
-          </p>
+          </div>
         </div>
         <div className="prose resume-content dark:prose-invert max-w-none pt-8 pb-8">
           <MDXLayoutRenderer code={career.body.code} />
