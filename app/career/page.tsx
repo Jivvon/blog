@@ -31,6 +31,26 @@ function Mermaid({ chart }: { chart: string }) {
   return <div ref={ref} className="my-8 flex justify-center text-black dark:text-white" />
 }
 
+function extractText(node: unknown): string {
+  if (typeof node === 'string' || typeof node === 'number') {
+    return String(node)
+  }
+  if (Array.isArray(node)) {
+    return node.map(extractText).join('')
+  }
+  if (typeof node === 'object' && node !== null) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const obj = node as any
+    if (obj.type === 'br') {
+      return '<br/>'
+    }
+    if (obj.props && 'children' in obj.props) {
+      return extractText(obj.props.children)
+    }
+  }
+  return ''
+}
+
 const mdxComponents = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pre: (props: any) => {
@@ -38,26 +58,8 @@ const mdxComponents = {
     const isMermaid = props.children?.props?.className?.includes('language-mermaid')
 
     if (isMermaid) {
-      // Extract the raw string from props.children.props.children
-      // Sometimes it's a single string, sometimes an array
       const codeChild = props.children.props.children
-      let chartString = ''
-
-      if (typeof codeChild === 'string') {
-        chartString = codeChild
-      } else if (Array.isArray(codeChild)) {
-        chartString = codeChild
-          .map((c: unknown) =>
-            typeof c === 'string'
-              ? c
-              : (c as Record<string, unknown>)?.props
-                ? ((c as Record<string, Record<string, unknown>>).props.children as string) || ''
-                : ''
-          )
-          .join('')
-      } else if (codeChild?.props?.children) {
-        chartString = codeChild.props.children
-      }
+      const chartString = extractText(codeChild)
 
       return <Mermaid chart={chartString} />
     }
