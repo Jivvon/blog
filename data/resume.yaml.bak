@@ -1,0 +1,62 @@
+personal:
+  firstName: Jiwon
+  lastName: Jeong
+  position: DevOps Engineer
+  address: Seoul, Rep. of Korea
+  homepage: lento.dev
+  github: Jivvon
+  linkedin: jwjeong
+
+summary: |
+  4년차 데브옵스 엔지니어로, On-Premise & EKS 환경의 Kubernetes 클러스터 운영에 대해 전문성을 가지고 있습니다.
+  또한, Terraform 기반 IaC 협업 환경 개선, Multi-Cluster 관리 환경 구축 등 다양한 소프트웨어 엔지니어링 경험을 보유하고 있습니다.
+
+  도전적인 과제에 대해 더 나은 문제 해결 방법을 고민하고, 새로운 기술과 도구를 배우는 데 관심이 많습니다.
+  기술을 단순히 사용하는 데 그치지 않고, 그 원리와 구조를 이해하기 위해 꾸준히 노력하고 있습니다.
+
+experience:
+  - company: "Channel Corp. (Channel Talk)"
+    role: DevOps Engineer
+    location: Seoul, S.Korea
+    period: "May. 2022 - Present"
+    items:
+      - "EKS 도입 및 약 60개의 채널톡의 모든 서비스를 ECS에서 EKS로 무중단 마이그레이션하는 프로젝트 리딩"
+      - "내부 애플리케이션에 적용 가능한 공용 Helm Chart 개발하여 현재 약 90여개의 애플리케이션에서 활용 중"
+      - "사내 인메모리 데이터베이스의 EKS 마이그레이션 및 부하 테스트를 통한 설정 수정으로 20% 비용 절감"
+      - "Grafana, Prometheus, Loki, Thanos 등 모니터링 도구를 활용하여 모니터링 시스템 구축 및 최적화"
+      - "Meet팀 소속으로 채널톡 전화 서비스 관련 DevOps 업무를 수행하며 EKS 환경에서 WebRTC 서버 구축 및 운영"
+      - "STT 아키텍처를 비동기 방식으로 구성하고 Spot 인스턴스를 사용하여 온디맨드 타입 대비 약 60% 이상의 비용 절감"
+      - "WebRTC 녹음 서버의 부하 테스트를 통해 유스케이스에 맞도록 설정을 최적화하여 추천 설정 대비 처리량 70% 증가"
+      - "전화 서비스 특성을 고려한 카나리 배포 전략 설계 및 실제 서비스 트래픽 적용 전 내부 채널 대상으로 QA 가능한 환경 구축"
+      - "Terragrunt를 도입하여 Stage별로 하나씩 존재하던 거대한 state를 세분화하고 병렬 작업 가능하도록 개선하여 plan 시간 최소 60% 단축"
+      - "내부 Terraform 모듈을 S3에서 버저닝하여 관리하도록 개선하여 공통 모듈 수정에 대한 부담을 완화"
+      - "Atlantis 도입 및 커스텀 Atlantis 이미지를 구축하여 협업 가능한 IaC 워크플로우 정립"
+      - "Hub-Spoke 구조로 멀티클러스터 관리 환경 구축 및 Terraform, ArgoCD를 활용하여 클러스터 프로비저닝 자동화"
+      - "ArgoCD 통합으로 멀티 어카운트, 멀티 리전 환경의 클러스터를 중앙에서 관리하도록 개선"
+      - "ArgoCD Application 및 GitOps 저장소 구조 개선을 통해 애플리케이션 및 운영 도구 추가/업그레이드 프로세스 개선"
+      - "사내 배포 플랫폼의 정적 웹페이지 배포, 워크플로우 관련 쿠버네티스 컨트롤러 등 기능 개발"
+
+  - company: SI Analytics
+    role: DevOps Engineer
+    location: Daejeon, S.Korea
+    period: "Mar. 2021 - Feb. 2022"
+    items:
+      - "온프레미스 환경에서 총 21대의 물리 서버(CPU + GPU)와 44대의 VM으로 구성된 5개의 Kubernetes 클러스터를 구축 및 운영"
+      - "3대의 Control Plane과 HAProxy를 활용한 고가용성 확보 및 주기적인 etcd 백업 환경 구성"
+      - "직무와 직급에 따른 RBAC 정책 설계 및 Helm Chart를 활용한 애플리케이션 배포 표준화"
+      - "OPA Gatekeeper를 활용하여 privileged container 제한 등 보안 정책 적용"
+      - "Grafana, Prometheus, Alertmanager를 활용하여 모니터링 시스템 구축 및 MS Teams와 연동"
+      - "연구원의 니즈에 따라 NVIDIA DCGM Exporter를 커스텀하여 GPU 관련 정보 추가 제공"
+      - "자주 사용되는 복잡한 집계 쿼리를 Recording Rule로 미리 계산하여 쿼리 효율화 및 대시보드 로딩 시간 단축"
+      - "Exporter 추가 시 일정 기간 후 메트릭 활용도를 확인하고, Relabeling을 통해 불필요한 메트릭을 수집하지 않도록 설정"
+
+writing:
+  - title: "Kubernetes 환경에서 WebRTC 서비스의 묵음 현상 분석기"
+    url: "https://channel.io/ko/team/blog/articles/1dc56e4a"
+    date: "Apr. 2025"
+
+education:
+  - institution: 충남대학교
+    degree: 컴퓨터공학과
+    location: Daejeon, S.Korea
+    period: "Mar. 2015 - Feb. 2022"

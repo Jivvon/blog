@@ -5,35 +5,6 @@ tags: [career, resume, devops, kubernetes, aws, infrastructure]
 processed: false
 ---
 
-## [ 사내 내부 개발자 플랫폼(IDP) 아키텍처 고도화 ]
-
-**개요**
-
-- 개발자 생산성(DX)과 인프라 안정성을 동시에 확보하기 위해, 오픈소스 및 내부 툴링을 결합한 인프라 셀프 서비스 플랫폼을 구축하는 프로젝트
-
-**기간**
-
-- 2026.01 ~ 2026.04
-
-**역할**
-
-- IDP 인프라 추상화 로직 설계 및 포털 구현
-- IaC Repository 연동 파이프라인 아키텍처 설계 및 구축
-- 공용 Terraform 모듈의 IDP 호환 버전 업그레이드 및 전체 프로젝트 적용
-
-**성과**
-
-- 기존 IaC Repository를 Source of Truth로 유지하면서, 개발자가 인프라 지식 없이도 직접 리소스(SQS 등)와 권한을 발급받을 수 있는 셀프 서비스 환경 확보
-- IDP에서 IaC Repository로 PR을 생성하고, CI/CD 수행 후 결과를 Webhook으로 수신하여 IDP에 연동하는 파이프라인 구축
-- 전체 애플리케이션 프로젝트가 사용하던 공용 Terraform 모듈을 IDP 구조에 맞게 업그레이드하고, Claude Code Skill 및 AI Agent를 활용하여 모든 프로젝트에 대한 코드 수정과 호환성 검증을 단기간 내에 완수
-
-**세부 사항**
-
-- 매니페스트 조작을 단순 치환에서 Node 기반 Tree 연산으로 리팩토링하여 안정성 확보
-- AI Agent 도입 시 맞춤형 프롬프트를 설계하여 대규모 반복 프로비저닝 작업을 자동화
-
----
-
 ## [ Multi Cluster 환경 구축 ]
 
 **개요**

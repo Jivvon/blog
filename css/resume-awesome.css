@@ -130,7 +130,7 @@
   font-size: 10.5pt;
   font-weight: 300;
   color: var(--acv-text);
-  line-height: 1.6;
+  line-height: 1.4;
   margin-top: 1mm;
   margin-bottom: 2mm;
 }
@@ -155,7 +155,7 @@
   font-size: 12pt;
   font-weight: 700;
   color: var(--acv-darktext);
-  line-height: 1.6;
+  line-height: 1.4;
 }
 
 .acv-entry-location {
@@ -190,7 +190,7 @@
   font-size: 10.5pt;
   font-weight: 300;
   color: var(--acv-text);
-  line-height: 1.6;
+  line-height: 1.4;
 }
 
 .acv-items li {
