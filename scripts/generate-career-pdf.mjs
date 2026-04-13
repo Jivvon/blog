@@ -83,12 +83,12 @@ async function generatePDF(outputPath) {
     })
 
     // ── 섹션(h2)별 페이지 구분 (비활성화) ──
-    // document.querySelectorAll('.prose h2').forEach((h2, i) => {
-    //   if (i > 0) {
-    //     h2.style.pageBreakBefore = 'always'
-    //     h2.style.paddingTop = '0'
-    //   }
-    // })
+    document.querySelectorAll('.prose h2').forEach((h2, i) => {
+      if (i > 0) {
+        h2.style.pageBreakBefore = 'always'
+        h2.style.paddingTop = '0'
+      }
+    })
 
     // ── hr 구분선 숨기기 ──
     document.querySelectorAll('hr').forEach((hr) => (hr.style.display = 'none'))
