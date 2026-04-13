@@ -29,7 +29,7 @@
 }
 
 .acv-header-name {
-  font-size: 32pt;
+  font-size: 36pt;
   line-height: 1.1;
   margin-bottom: 0.4mm;
 }
@@ -45,7 +45,7 @@
 }
 
 .acv-header-position {
-  font-size: 7.6pt;
+  font-size: 9pt;
   font-variant: small-caps;
   text-transform: lowercase;
   color: var(--acv-awesome);
@@ -54,14 +54,14 @@
 }
 
 .acv-header-address {
-  font-size: 8pt;
+  font-size: 9.5pt;
   font-style: italic;
   color: var(--acv-lighttext);
   margin-bottom: 2mm;
 }
 
 .acv-header-social {
-  font-size: 6.8pt;
+  font-size: 8.5pt;
   color: var(--acv-text);
   display: flex;
   justify-content: center;
@@ -106,7 +106,7 @@
 }
 
 .acv-section-title {
-  font-size: 16pt;
+  font-size: 18pt;
   font-weight: 700;
   color: var(--acv-text);
   white-space: nowrap;
@@ -127,7 +127,7 @@
 
 /* ---------- Paragraph (Summary) ---------- */
 .acv-paragraph {
-  font-size: 9pt;
+  font-size: 10.5pt;
   font-weight: 300;
   color: var(--acv-text);
   line-height: 1.4;
@@ -151,14 +151,14 @@
 }
 
 .acv-entry-title {
-  font-size: 10pt;
+  font-size: 12pt;
   font-weight: 700;
   color: var(--acv-darktext);
   line-height: 1.4;
 }
 
 .acv-entry-location {
-  font-size: 9pt;
+  font-size: 10.5pt;
   font-weight: 300;
   font-style: italic;
   color: var(--acv-awesome);
@@ -166,7 +166,7 @@
 }
 
 .acv-entry-position {
-  font-size: 8pt;
+  font-size: 9.5pt;
   font-variant: small-caps;
   text-transform: lowercase;
   color: var(--acv-graytext);
@@ -174,7 +174,7 @@
 }
 
 .acv-entry-date {
-  font-size: 8pt;
+  font-size: 9.5pt;
   font-weight: 300;
   font-style: italic;
   color: var(--acv-graytext);
@@ -187,7 +187,7 @@
   padding: 0;
   padding-left: 2ex;
   list-style: disc;
-  font-size: 9pt;
+  font-size: 10.5pt;
   font-weight: 300;
   color: var(--acv-text);
   line-height: 1.4;
@@ -213,7 +213,7 @@
   grid-template-columns: auto 1fr auto;
   gap: 0.8em;
   align-items: baseline;
-  font-size: 9pt;
+  font-size: 10.5pt;
 }
 
 .acv-honor-date {
@@ -251,7 +251,7 @@
   right: 0;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  font-size: 8pt;
+  font-size: 9.5pt;
   font-variant: small-caps;
   text-transform: lowercase;
   color: var(--acv-lighttext);
