@@ -1,34 +1,74 @@
 'use client'
 
-import { useEffect } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { allCareers } from 'contentlayer/generated'
 import { MDXLayoutRenderer } from 'pliny/mdx-components'
 import { coreContent } from 'pliny/utils/contentlayer'
 
-export default function CareerPage() {
-  const career = allCareers.find((p) => p.slug === 'default')
+function Mermaid({ chart }: { chart: string }) {
+  const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      import('mermaid').then((m) => {
+      import('mermaid').then(async (m) => {
         m.default.initialize({ startOnLoad: false, theme: 'default' })
-        const elements = document.querySelectorAll('.language-mermaid')
-        let shouldRun = false
-        elements.forEach((el) => {
-          if (el.parentElement && el.parentElement.tagName === 'PRE') {
-            el.parentElement.classList.add('mermaid')
-            el.parentElement.textContent = el.textContent // remove <code> wrapping
-            el.parentElement.style.textAlign = 'center'
-            el.parentElement.style.backgroundColor = 'transparent'
-            shouldRun = true
+        try {
+          const id = `mermaid-${Math.random().toString(36).substring(7)}`
+          // Mermaid parses actual <br> elements poorly if passed from React stringification,
+          // so ensure the string uses explicit newlines or literal <br/> string
+          // We will render it using mermaid API
+          const { svg } = await m.default.render(id, chart)
+          if (ref.current) {
+            ref.current.innerHTML = svg
           }
-        })
-        if (shouldRun) {
-          m.default.run()
+        } catch (e) {
+          console.error('Mermaid render error', e)
         }
       })
     }
-  }, [career])
+  }, [chart])
+
+  return <div ref={ref} className="my-8 flex justify-center text-black dark:text-white" />
+}
+
+const mdxComponents = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  pre: (props: any) => {
+    // Find if the inner code block is a mermaid block
+    const isMermaid = props.children?.props?.className?.includes('language-mermaid')
+
+    if (isMermaid) {
+      // Extract the raw string from props.children.props.children
+      // Sometimes it's a single string, sometimes an array
+      const codeChild = props.children.props.children
+      let chartString = ''
+
+      if (typeof codeChild === 'string') {
+        chartString = codeChild
+      } else if (Array.isArray(codeChild)) {
+        chartString = codeChild
+          .map((c: unknown) =>
+            typeof c === 'string'
+              ? c
+              : (c as Record<string, unknown>)?.props
+                ? ((c as Record<string, Record<string, unknown>>).props.children as string) || ''
+                : ''
+          )
+          .join('')
+      } else if (codeChild?.props?.children) {
+        chartString = codeChild.props.children
+      }
+
+      return <Mermaid chart={chartString} />
+    }
+
+    // Otherwise fallback to default pre
+    return <pre {...props} />
+  },
+}
+
+export default function CareerPage() {
+  const career = allCareers.find((p) => p.slug === 'default')
 
   if (!career) {
     return <div className="mt-24 text-center">No career document found.</div>
@@ -67,7 +107,7 @@ export default function CareerPage() {
           </div>
         </div>
         <div className="prose resume-content dark:prose-invert max-w-none pt-8 pb-8">
-          <MDXLayoutRenderer code={career.body.code} />
+          <MDXLayoutRenderer code={career.body.code} components={mdxComponents} />
         </div>
       </div>
 
