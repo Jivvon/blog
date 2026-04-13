@@ -21,8 +21,7 @@ experience:
     period: "May. 2022 - Present"
     items:
       - "사내 내부 개발자 플랫폼(Internal Developer Platform) 인프라 추상화 로직 및 포털을 자체 구축하여, 개발자가 직접 리소스(SQS 등)를 배포하는 셀프 서비스 환경을 확보하고 운영 팀의 병목과 관리 리드타임을 감축"
-      - "단일 상태 파일(State)로 구성되어 12분 이상 소요되던 Terraform 파이프라인에 Terragrunt를 전격 도입. Account/Region/Stage 단위로 아키텍처를 세분화하고 Atlantis 연동을 통해 CI/CD 소요 시간을 기존 대비 약 80% 단축(1분 내외)"
-      - "IaC로 관리되는 모든 프로젝트의 공용 Terraform 모듈 업그레이드 시, Claude 기반 AI 에이전트를 도입해 방대한 상태 이전(`moved.tf`) 반복 작업을 자동화하여 단시간 내에 무중단 적용 달성"
+      - "단일 상태 파일(State)로 구성되어 12분 이상 소요되던 Terraform 파이프라인에 Terragrunt를 전격 도입. Account/Region/Stage 단위로 아키텍처를 세분화하고 Atlantis 연동을 통해 CI/CD 소요 시간을 기존 대비 90% 이상 단축(1분 내외)"
       - "실시간 화상/음성 통신(Meet) 인프라 설계 및 WebRTC 통화 녹음 서버 부하 테스트, 어피니티 분석 수행. 컨테이너 리소스 스케일링 기준을 내부 사례에 맞게 최적화하여 권장 설정값 대비 인스턴스 처리량을 70% 증가"
       - "WebRTC 피크 타임 스케일아웃 중 간헐적으로 나타나던 트래픽 Drop 및 묵음 장애를 EIP 할당 응답과 실제 내부망 개통 시점(Time gap) 간의 지연 편차 문제임을 직접 규명하고 검증 로직을 적용하여 이슈 차단"
       - "ArgoCD ApplicationSet(Matrix, Git, Cluster)의 계층적 Generator를 조합하여 다중 리전 및 어카운트에 걸친 수많은 EKS 클러스터들을 중앙(Hub) 클러스터에서 일괄 통제 및 프로비저닝 구조 정립"
