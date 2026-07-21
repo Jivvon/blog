@@ -4,9 +4,9 @@ import Logo from '@/data/logo.svg'
 import Link from './Link'
 import MobileNav from './MobileNav'
 import ThemeSwitch from './ThemeSwitch'
-import SearchButton from './SearchButton'
 
 const Header = () => {
+  const hasNavigation = headerNavLinks.length > 0
   let headerClass = 'flex items-center w-full bg-white dark:bg-gray-950 justify-between py-10'
   if (siteMetadata.stickyNav) {
     headerClass += ' sticky top-0 z-50'
@@ -29,10 +29,9 @@ const Header = () => {
         </div>
       </Link>
       <div className="flex items-center space-x-4 leading-5 sm:-mr-6 sm:space-x-6">
-        <div className="no-scrollbar hidden max-w-40 items-center gap-x-4 overflow-x-auto sm:flex md:max-w-72 lg:max-w-96">
-          {headerNavLinks
-            .filter((link) => link.href !== '/')
-            .map((link) => (
+        {hasNavigation && (
+          <div className="no-scrollbar hidden max-w-40 items-center gap-x-4 overflow-x-auto sm:flex md:max-w-72 lg:max-w-96">
+            {headerNavLinks.map((link) => (
               <Link
                 key={link.title}
                 href={link.href}
@@ -41,10 +40,10 @@ const Header = () => {
                 {link.title}
               </Link>
             ))}
-        </div>
-        <SearchButton />
+          </div>
+        )}
         <ThemeSwitch />
-        <MobileNav />
+        {hasNavigation && <MobileNav />}
       </div>
     </header>
   )
