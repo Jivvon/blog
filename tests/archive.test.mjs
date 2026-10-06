@@ -8,6 +8,7 @@ import { backupArchive } from '../scripts/archive-backup.mjs'
 import { sanitizeArchive, searchPosts, validateIndex } from '../lib/archive-format.mjs'
 import { routeAccess } from '../lib/access-policy.mjs'
 import { privateStorage } from '../lib/archive-storage.mjs'
+import { spawnSync } from 'node:child_process'
 
 const body =
   '<h2>한국어 본문</h2><p>분산 시스템과 일하는 방법.</p><script>leak()</script><a href="javascript:alert(1)">링크</a>'
@@ -19,6 +20,15 @@ const post = (id, extra = {}) => ({
   audience: 'everyone',
   body_html: body,
   ...extra,
+})
+
+test('private builds refuse static export before creating an artifact', () => {
+  const result = spawnSync(process.execPath, ['scripts/build.mjs'], {
+    env: { ...process.env, BLOG_PROFILE: 'private', EXPORT: '1' },
+    encoding: 'utf8',
+  })
+  assert.notEqual(result.status, 0)
+  assert.match(result.stderr, /Private builds cannot be statically exported/)
 })
 async function temporary(t) {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'archive-test-'))

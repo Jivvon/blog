@@ -65,9 +65,9 @@ const securityHeaders = [
   },
 ]
 
-const output = process.env.STANDALONE ? 'standalone' : undefined
-if (process.env.EXPORT)
-  throw new Error('Static export cannot enforce the public/private route boundary')
+if (process.env.EXPORT && isPrivate)
+  throw new Error('Private builds require a server and cannot be statically exported')
+const output = process.env.EXPORT ? 'export' : process.env.STANDALONE ? 'standalone' : undefined
 const basePath = process.env.BASE_PATH || undefined
 const unoptimized = process.env.UNOPTIMIZED ? true : undefined
 

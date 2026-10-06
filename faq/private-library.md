@@ -23,13 +23,30 @@ npm run build:public
 node scripts/verify-web.mjs
 npm run build:private
 BLOG_PROFILE=private node scripts/verify-web.mjs
+npm run build:pages
+npm run verify:export
 ```
 
 The build wrapper clears Contentlayer/Next caches and generated feeds before
 each build, including when switching from private to public. Never reuse a
 private build as the public deployment. `SITE_URL` is embedded at build time;
-changing it requires a rebuild. Static export is unsupported because it would
-bypass the route boundary.
+changing it requires a rebuild.
+
+Cloudflare Pages/static hosting can keep using `EXPORT=1 UNOPTIMIZED=1 npm run
+build`, or the equivalent `npm run build:pages`, and publish `out/`. This builds
+from an isolated source tree containing only the about page, its assets, robots
+and sitemap. Blog/resume documents, private routes, API routes, feeds, search
+exports and other public-file directories are absent from the artifact. Pages
+redirects preserve the about-only public flow, and an explicit 404 prevents an
+SPA fallback for unknown/private routes. The private profile refuses static
+export before producing an artifact. Direct `next build` is not a supported
+entry point; use the repository's build scripts so profile caches are cleared.
+
+The live Pages build command/environment is managed outside this repository;
+detailed logs require Cloudflare project access. Verify that project uses Node
+24 (`.nvmrc`/Volta), the committed lockfile, the public static build command and
+the `out` output directory. The final PR head's Pages preview must pass before
+merging or changing the public deployment.
 
 For local private reading:
 

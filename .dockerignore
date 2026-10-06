@@ -1,7 +1,9 @@
 .git
 node_modules
+.yarn
 .next
 .contentlayer
+out
 .archive
 archive-backups
 .build-*

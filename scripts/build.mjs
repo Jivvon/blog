@@ -1,18 +1,26 @@
 import { rmSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
+import { publicExport } from './public-export.mjs'
 
 if (process.env.BLOG_PROFILE && !['public', 'private'].includes(process.env.BLOG_PROFILE))
   throw new Error('Invalid BLOG_PROFILE')
+if (process.env.EXPORT && process.env.BLOG_PROFILE === 'private')
+  throw new Error('Private builds cannot be statically exported')
 // Contentlayer does not include arbitrary environment variables in its cache key.
 // Never reuse a private generated-content cache in a public build.
 for (const generated of [
   '.next',
   '.contentlayer',
+  'out',
   'public/feed.xml',
   'public/search.json',
   'public/tags',
 ])
   rmSync(generated, { recursive: true, force: true })
+if (process.env.EXPORT) {
+  await publicExport()
+  process.exit(0)
+}
 const build = spawnSync(process.execPath, ['node_modules/next/dist/bin/next', 'build'], {
   stdio: 'inherit',
   env: process.env,

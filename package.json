@@ -13,11 +13,13 @@
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,md,html}\"",
     "build:public": "cross-env BLOG_PROFILE=public node scripts/build.mjs",
     "build:private": "cross-env BLOG_PROFILE=private node scripts/build.mjs",
+    "build:pages": "cross-env BLOG_PROFILE=public EXPORT=1 UNOPTIMIZED=1 node scripts/build.mjs",
     "serve:private": "cross-env BLOG_PROFILE=private next start -p 3020",
     "test": "node --test tests/*.test.mjs",
     "archive:sync": "node scripts/archive-substack.mjs",
     "archive:backup": "node scripts/archive-backup.mjs",
-    "verify:web": "node scripts/verify-web.mjs"
+    "verify:web": "node scripts/verify-web.mjs",
+    "verify:export": "node scripts/verify-export.mjs"
   },
   "dependencies": {
     "@headlessui/react": "2.2.0",

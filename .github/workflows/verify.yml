@@ -25,3 +25,5 @@ jobs:
       - run: npm run lint
       - run: npm run build
       - run: node scripts/verify-web.mjs
+      - if: matrix.profile == 'public'
+        run: npm run build:pages && npm run verify:export
