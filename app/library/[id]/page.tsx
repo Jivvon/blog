@@ -12,6 +12,7 @@ export default async function Article({ params }: { params: Promise<{ id: string
   const index = await readArchive()
   const post = index.posts.find((item) => item.id === id)
   if (!post) notFound()
+  const source = index.sources.find((item) => item.id === post.sourceId)!
   const html = await readArticle(post)
   return (
     <article className="py-6">
@@ -34,7 +35,7 @@ export default async function Article({ params }: { params: Promise<{ id: string
           rel="noopener noreferrer"
           className="text-primary-600 inline-block"
         >
-          Substack 원문 ↗
+          {source.name} 원문 ↗
         </a>
       </header>
       <div

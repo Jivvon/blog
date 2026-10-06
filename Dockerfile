@@ -28,7 +28,7 @@ CMD ["node", "server.js"]
 FROM dependencies AS collector
 ENV NODE_ENV=production
 COPY --chown=10001:10001 package.json ./
-COPY --chown=10001:10001 lib/archive-format.mjs lib/archive-storage.mjs ./lib/
+COPY --chown=10001:10001 lib/archive-format.mjs lib/archive-storage.mjs lib/archive-store.mjs ./lib/
 COPY --chown=10001:10001 scripts/archive-substack.mjs scripts/archive-backup.mjs ./scripts/
 USER 10001:10001
 ENTRYPOINT ["node", "scripts/archive-substack.mjs"]

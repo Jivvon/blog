@@ -36,7 +36,7 @@ await syncArchive({
   },
 })
 const index = JSON.parse(await fs.readFile(path.join(root, 'index.json'), 'utf8'))
-const assetRoute = `/library/assets/9901/${index.posts[0].assets[0]}`
+const assetRoute = `/library/assets/substack-1234373801-9901/${index.posts[0].assets[0]}`
 const server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '-p', '3109'], {
   env: { ...process.env, ARCHIVE_DIR: root },
   stdio: ['ignore', 'pipe', 'pipe'],
@@ -96,7 +96,7 @@ try {
   if (profile === 'public') {
     for (const route of [
       '/library',
-      '/library/9901',
+      '/library/substack-1234373801-9901',
       '/lab',
       '/api/newsletter',
       '/search.json',
@@ -119,7 +119,7 @@ try {
     assert.match(library.headers.get('x-robots-tag'), /noindex/)
     assert.match(library.headers.get('cache-control'), /private/)
     assert.match(await library.text(), /검증용 샘플/)
-    const article = await request('/library/9901')
+    const article = await request('/library/substack-1234373801-9901')
     assert.equal(article.status, 200)
     const html = await article.text()
     assert.match(html, /PRIVATE_ARCHIVE_SENTINEL/)
@@ -128,7 +128,10 @@ try {
     assert.equal(asset.status, 200)
     assert.equal(asset.headers.get('content-type'), 'image/png')
     assert.deepEqual(asset.body, image)
-    assert.equal((await request('/library/assets/9901/' + 'a'.repeat(64) + '.png')).status, 404)
+    assert.equal(
+      (await request('/library/assets/substack-1234373801-9901/' + 'a'.repeat(64) + '.png')).status,
+      404
+    )
     assert.equal((await request('/library/9999')).status, 404)
     assert.equal(
       (await request('/library', { headers: { Host: 'blog.jwjeong127.com' } })).status,

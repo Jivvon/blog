@@ -236,7 +236,7 @@ test('image failure is reported and a retry repairs offline images without losin
   assert.equal(repaired.complete, true)
   const index = JSON.parse(await fs.readFile(path.join(root, 'index.json'), 'utf8'))
   assert.equal(index.posts[0].assets.length, 1)
-  assert.equal((await fs.readdir(path.join(root, 'snapshots', '1'))).length, 2)
+  assert.equal((await fs.readdir(path.join(root, 'snapshots', 'substack-1234373801-1'))).length, 2)
 })
 
 test('backup and restore preserve articles and refuse existing targets, escaped symlinks and active writers', async (t) => {
@@ -256,7 +256,13 @@ test('backup and restore preserve articles and refuse existing targets, escaped 
   await assert.rejects(syncArchive({ root, client: client([]), delayMs: 0 }), { code: 'EEXIST' })
   await fs.rmdir(path.join(root, '.sync-lock'))
   const index = JSON.parse(await fs.readFile(path.join(root, 'index.json'), 'utf8'))
-  const raw = path.join(root, 'snapshots', '1', index.posts[0].revision, 'raw.html')
+  const raw = path.join(
+    root,
+    'snapshots',
+    'substack-1234373801-1',
+    index.posts[0].revision,
+    'raw.html'
+  )
   await fs.rm(raw)
   await fs.symlink('/etc/hosts', raw)
   await assert.rejects(backupArchive(root, path.join(parent, 'unsafe')), /escaped storage/)
@@ -275,15 +281,21 @@ test('backup retains old image revisions and rejects corrupted snapshot or image
   const backup = path.join(parent, 'backup')
   await backupArchive(root, backup)
   assert.deepEqual(
-    await fs.readFile(path.join(backup, 'assets', '1', old.assets[0])),
+    await fs.readFile(path.join(backup, 'assets', 'substack-1234373801-1', old.assets[0])),
     Buffer.from('test-image')
   )
-  assert.equal((await fs.readdir(path.join(backup, 'snapshots', '1'))).length, 2)
-  const image = path.join(root, 'assets', '1', old.assets[0])
+  assert.equal(
+    (await fs.readdir(path.join(backup, 'snapshots', 'substack-1234373801-1'))).length,
+    2
+  )
+  const image = path.join(root, 'assets', 'substack-1234373801-1', old.assets[0])
   await fs.writeFile(image, 'damaged')
   await assert.rejects(backupArchive(root, path.join(parent, 'bad-image')), /image checksum/)
   await fs.writeFile(image, 'test-image')
-  await fs.writeFile(path.join(root, 'snapshots', '1', old.revision, 'raw.html'), 'damaged')
+  await fs.writeFile(
+    path.join(root, 'snapshots', 'substack-1234373801-1', old.revision, 'raw.html'),
+    'damaged'
+  )
   await assert.rejects(backupArchive(root, path.join(parent, 'bad-snapshot')), /revision checksum/)
   await assert.rejects(fs.stat(path.join(parent, 'bad-image')), { code: 'ENOENT' })
   await assert.rejects(fs.stat(path.join(parent, 'bad-snapshot')), { code: 'ENOENT' })

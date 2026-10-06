@@ -3,7 +3,7 @@ import path from 'node:path'
 import { randomUUID, createHash } from 'node:crypto'
 import { parseArgs } from 'node:util'
 import { pathToFileURL, fileURLToPath } from 'node:url'
-import { validateIndex, hashPattern, assetNamePattern } from '../lib/archive-format.mjs'
+import { validateIndex, hashPattern, assetNamePattern, idPattern } from '../lib/archive-format.mjs'
 import { privateStorage } from '../lib/archive-storage.mjs'
 
 export async function backupArchive(source, target) {
@@ -70,7 +70,7 @@ export async function backupArchive(source, target) {
       throw error
     })
     for (const id of ids) {
-      if (!/^[1-9][0-9]*$/.test(id)) continue
+      if (!idPattern.test(id)) continue
       for (const revision of await fs.readdir(path.join(snapshots, id))) {
         if (
           !hashPattern.test(revision) ||

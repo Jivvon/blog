@@ -1,18 +1,19 @@
 import 'server-only'
-import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { isPrivate } from './profile'
-import { privateStorage } from './archive-storage.mjs'
+import { createArchiveStore } from './archive-store.mjs'
 import {
   assetNamePattern,
   idPattern,
   hashPattern,
   sanitizeArchive,
   validateIndex,
+  emptyIndex,
 } from './archive-format.mjs'
 
 export interface ArchivedPost {
   id: string
+  sourceId: string
   revision: string
   title: string
   author: string
@@ -25,48 +26,36 @@ export interface ArchivedPost {
 
 export interface ArchiveIndex {
   schemaVersion: number
-  publication: { name: string; baseUrl: string }
+  sources: { id: string; kind: string; name: string; baseUrl: string }[]
   capturedAt: string | null
   posts: ArchivedPost[]
 }
 
-async function archiveRoot() {
+async function archiveStore() {
   if (!isPrivate) throw new Error('Archive is unavailable in the public build')
-  const root = process.env.ARCHIVE_DIR
-  if (!root || !path.isAbsolute(root))
-    throw new Error('ARCHIVE_DIR must be an absolute private storage path')
-  return privateStorage(root)
+  return createArchiveStore()
 }
 
 async function readInside(relative: string, maxBytes: number) {
-  const root = await fs.realpath(await archiveRoot())
-  const file = await fs.realpath(path.join(root, relative))
-  if (!file.startsWith(root + path.sep)) throw new Error('Archive path escaped storage')
-  const handle = await fs.open(file, 'r')
+  const store = await archiveStore()
   try {
-    const stat = await handle.stat()
-    if (!stat.isFile() || stat.size > maxBytes) throw new Error('Invalid archive file size')
-    return await handle.readFile()
+    const object = await store.get(relative, maxBytes)
+    if (!object) throw Object.assign(new Error('Archive object is missing'), { code: 'ENOENT' })
+    return object.body
   } finally {
-    await handle.close()
+    await store.close()
   }
 }
 
 export async function readArchive(): Promise<ArchiveIndex> {
   // Check even when storage is missing, so public routes cannot read private files.
-  await archiveRoot()
   try {
     return validateIndex(
       JSON.parse((await readInside('index.json', 128 * 1024 * 1024)).toString('utf8'))
     )
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
-    return {
-      schemaVersion: 1,
-      publication: { name: '실리콘밸리 생존자', baseUrl: 'https://1234373801.substack.com' },
-      capturedAt: null,
-      posts: [],
-    }
+    return emptyIndex()
   }
 }
 
