@@ -21,6 +21,7 @@ import rehypeCitation from 'rehype-citation'
 import rehypePrismPlus from 'rehype-prism-plus'
 import rehypePresetMinify from 'rehype-preset-minify'
 import siteMetadata from './data/siteMetadata'
+import { isPrivate } from './lib/profile'
 
 const root = process.cwd()
 
@@ -130,6 +131,7 @@ export const Resume = defineDocumentType(() => ({
 
 export default makeSource({
   contentDirPath: 'data',
+  contentDirInclude: isPrivate ? ['authors', 'blog', 'resume'] : ['authors'],
   documentTypes: [Blog, Authors, Resume],
   mdx: {
     cwd: process.cwd(),

@@ -10,6 +10,7 @@ import Footer from '@/components/Footer'
 import siteMetadata from '@/data/siteMetadata'
 import { ThemeProviders } from './theme-providers'
 import { Metadata } from 'next'
+import { isPrivate } from '../lib/profile'
 
 const space_grotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -37,11 +38,11 @@ export const metadata: Metadata = {
     canonical: './',
   },
   robots: {
-    index: true,
-    follow: true,
+    index: !isPrivate,
+    follow: !isPrivate,
     googleBot: {
-      index: true,
-      follow: true,
+      index: !isPrivate,
+      follow: !isPrivate,
       'max-video-preview': -1,
       'max-image-preview': 'large',
       'max-snippet': -1,
@@ -91,7 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000" />
       <body className="bg-white pl-[calc(100vw-100%)] text-black antialiased dark:bg-gray-950 dark:text-white">
         <ThemeProviders>
-          <Analytics analyticsConfig={siteMetadata.analytics as AnalyticsConfig} />
+          {!isPrivate && <Analytics analyticsConfig={siteMetadata.analytics as AnalyticsConfig} />}
           <SectionContainer>
             <Header />
             <main className="mb-auto">{children}</main>

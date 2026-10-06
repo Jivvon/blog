@@ -5,27 +5,35 @@
   "scripts": {
     "start": "next dev -p 3020",
     "dev": "cross-env INIT_CWD=$PWD next dev -p 3020",
-    "build": "cross-env INIT_CWD=$PWD next build",
+    "build": "cross-env INIT_CWD=$PWD node scripts/build.mjs",
     "serve": "next start -p 3020",
-    "analyze": "cross-env ANALYZE=true next build",
-    "lint": "next lint --fix --dir pages --dir app --dir components --dir lib --dir layouts --dir scripts",
+    "analyze": "cross-env ANALYZE=true node scripts/build.mjs",
+    "lint": "eslint app components layouts lib scripts tests contentlayer.config.ts middleware.ts next.config.js data/headerNavLinks.ts data/siteMetadata.js",
     "prepare": "husky",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,md,html}\""
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,md,html}\"",
+    "build:public": "cross-env BLOG_PROFILE=public node scripts/build.mjs",
+    "build:private": "cross-env BLOG_PROFILE=private node scripts/build.mjs",
+    "serve:private": "cross-env BLOG_PROFILE=private next start -p 3020",
+    "test": "node --test tests/*.test.mjs",
+    "archive:sync": "node scripts/archive-substack.mjs",
+    "archive:backup": "node scripts/archive-backup.mjs",
+    "verify:web": "node scripts/verify-web.mjs"
   },
   "dependencies": {
     "@headlessui/react": "2.2.0",
-    "@next/bundle-analyzer": "15.2.4",
+    "@next/bundle-analyzer": "15.5.27",
     "@tailwindcss/forms": "^0.5.9",
     "@tailwindcss/postcss": "^4.0.5",
     "@tailwindcss/typography": "^0.5.15",
     "body-scroll-lock": "^4.0.0-beta.0",
+    "cheerio": "1.2.0",
     "contentlayer2": "0.5.5",
     "esbuild": "0.25.2",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.2",
     "hast-util-from-html-isomorphic": "^2.0.0",
     "image-size": "2.0.1",
-    "next": "15.2.4",
+    "next": "15.5.27",
     "next-contentlayer2": "0.5.5",
     "next-themes": "^0.4.6",
     "pliny": "0.4.1",
@@ -44,7 +52,11 @@
     "remark-gfm": "^4.0.0",
     "remark-github-blockquote-alert": "^1.2.1",
     "remark-math": "^6.0.0",
+    "sanitize-html": "2.18.0",
     "tailwindcss": "^4.0.5",
+    "turndown": "7.2.4",
+    "turndown-plugin-gfm": "1.0.2",
+    "undici": "8.11.2",
     "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
@@ -53,11 +65,13 @@
     "@svgr/webpack": "^8.0.1",
     "@types/mdx": "^2.0.12",
     "@types/react": "^19.0.8",
+    "@types/sanitize-html": "2.16.2",
+    "@types/turndown": "5.0.6",
     "@typescript-eslint/eslint-plugin": "^8.12.0",
     "@typescript-eslint/parser": "^8.12.0",
     "cross-env": "^7.0.3",
     "eslint": "^9.14.0",
-    "eslint-config-next": "15.2.4",
+    "eslint-config-next": "15.5.27",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.0",
     "globals": "^15.12.0",
@@ -77,7 +91,10 @@
   },
   "packageManager": "yarn@3.6.1",
   "volta": {
-    "node": "22.14.0",
+    "node": "24.19.0",
     "yarn": "4.9.0"
+  },
+  "engines": {
+    "node": ">=24.0.0"
   }
 }

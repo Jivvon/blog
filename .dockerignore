@@ -1,0 +1,13 @@
+.git
+node_modules
+.next
+.contentlayer
+.archive
+archive-backups
+.build-*
+.env*
+public/feed.xml
+public/search.json
+public/tags
+*.log
+*.tsbuildinfo

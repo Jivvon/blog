@@ -67,4 +67,9 @@ export default [
       '@typescript-eslint/ban-ts-comment': 'off',
     },
   },
+  {
+    // These modules are consumed by both Next's Node configuration and application code.
+    files: ['next.config.js', 'data/siteMetadata.js', 'lib/profile.js'],
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
+  },
 ]

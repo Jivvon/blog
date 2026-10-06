@@ -6,7 +6,7 @@ const siteMetadata = {
   description: '',
   language: 'ko-KR',
   theme: 'light', // system, dark or light
-  siteUrl: 'https://jwjeong127.com',
+  siteUrl: require('../lib/profile').siteUrl,
   siteRepo: 'https://github.com/jivvon/blog',
   // siteLogo: `${process.env.BASE_PATH || ''}/static/images/logo.png`,
   // socialBanner: `${process.env.BASE_PATH || ''}/static/images/twitter-card.png`,
