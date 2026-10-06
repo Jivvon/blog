@@ -1,3 +1,7 @@
+This repository supports an about-only public site and a separate Tailscale
+private blog/library. See [private library operations](faq/private-library.md)
+for build profiles, article collection, validation, backup and deployment.
+
 ![tailwind-nextjs-banner](/public/static/images/twitter-card.png)
 
 # Tailwind Nextjs Starter Blog

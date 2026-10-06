@@ -1,0 +1,29 @@
+name: Verify public and private blog
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        profile: [public, private]
+    env:
+      BLOG_PROFILE: ${{ matrix.profile }}
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+      - run: npm run build
+      - run: node scripts/verify-web.mjs
+      - if: matrix.profile == 'public'
+        run: npm run build:pages && npm run verify:export

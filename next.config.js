@@ -1,4 +1,15 @@
 const { withContentlayer } = require('next-contentlayer2')
+const { isPrivate, siteUrl } = require('./lib/profile')
+if (process.env.BLOG_PROFILE && !['public', 'private'].includes(process.env.BLOG_PROFILE)) {
+  throw new Error('BLOG_PROFILE must be public or private')
+}
+const parsedSiteUrl = new URL(siteUrl)
+if (
+  parsedSiteUrl.protocol !== 'https:' &&
+  !['localhost', '127.0.0.1'].includes(parsedSiteUrl.hostname)
+) {
+  throw new Error('SITE_URL must use HTTPS outside localhost')
+}
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
@@ -54,7 +65,9 @@ const securityHeaders = [
   },
 ]
 
-const output = process.env.EXPORT ? 'export' : undefined
+if (process.env.EXPORT && isPrivate)
+  throw new Error('Private builds require a server and cannot be statically exported')
+const output = process.env.EXPORT ? 'export' : process.env.STANDALONE ? 'standalone' : undefined
 const basePath = process.env.BASE_PATH || undefined
 const unoptimized = process.env.UNOPTIMIZED ? true : undefined
 
@@ -65,9 +78,8 @@ module.exports = () => {
   const plugins = [withContentlayer, withBundleAnalyzer]
   return plugins.reduce((acc, next) => next(acc), {
     output,
+    env: { BLOG_PROFILE: isPrivate ? 'private' : 'public', SITE_URL: siteUrl },
     basePath,
-    reactStrictMode: true,
-    trailingSlash: false,
     pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
     eslint: {
       dirs: ['app', 'components', 'layouts', 'scripts'],

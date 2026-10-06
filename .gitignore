@@ -45,3 +45,9 @@ yarn-error.log*
 
 # Contentlayer
 .contentlayer
+
+# Personal archive content must never enter Git or a build context.
+/.archive/
+/archive-backups/
+/.build-public/
+/.build-private/
