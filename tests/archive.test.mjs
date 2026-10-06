@@ -135,10 +135,13 @@ test('archive storage rejects project paths and symlinks into the build context'
   const project = path.join(parent, 'project')
   await fs.mkdir(project)
   await fs.symlink(project, path.join(parent, 'alias'))
+  await fs.mkdir(path.join(parent, 'outside'))
+  await fs.symlink(path.join(parent, 'outside'), path.join(project, 'public-alias'))
   for (const value of [
     project,
     path.join(project, 'public', 'archive'),
     path.join(parent, 'alias', 'new'),
+    path.join(project, 'public-alias', 'new'),
   ])
     await assert.rejects(privateStorage(value, project), /outside the project/)
   assert.equal(
