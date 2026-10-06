@@ -92,10 +92,17 @@ test('public routes deny archive, API, feeds and unknown files; private requires
 
 test('anonymous free body verification rejects paid previews, missing bodies and paywalls', () => {
   assert.equal(freeBody(post(1)), true)
+  assert.equal(
+    freeBody(
+      post(1, { body_html: '<figure><img src="https://substackcdn.com/image/test.png"></figure>' })
+    ),
+    true
+  )
   for (const extra of [
     { audience: 'only_paid' },
     { audience: undefined },
     { body_html: '' },
+    { body_html: '<script>invisible()</script><style>body{color:red}</style>' },
     { has_paywall: true },
     { body_html: '<div class="paywall">미리보기</div>' },
     { is_published: false },

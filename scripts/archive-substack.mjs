@@ -47,7 +47,8 @@ export function freeBody(post) {
     return false
   const $ = load(post.body_html, null, false)
   if ($('[class*="paywall"], [data-testid="paywall"]').length) return false
-  return $.text().trim().length > 0
+  $('script, style, form').remove()
+  return $.text().trim().length > 0 || $('img, iframe, video, audio').length > 0
 }
 
 export function makeHttpClient() {
